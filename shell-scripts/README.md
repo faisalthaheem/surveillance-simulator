@@ -1,0 +1,8 @@
+# About
+Scripts that make it possible to run tools in virtualized environments.
+Gazebo can be launched in lxd container with the help of provided scripts with hardware acceleration enabled and this project directory mounted under /home/ubuntu/work/simulator
+
+Special thanks to the information at the following websites to enable this
+- https://blog.simos.info/running-x11-software-in-lxd-containers/
+- https://www.cyberciti.biz/faq/how-to-add-or-mount-directory-in-lxd-linux-container/
+
