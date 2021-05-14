@@ -6,3 +6,14 @@ Special thanks to the information at the following websites to enable this
 - https://blog.simos.info/running-x11-software-in-lxd-containers/
 - https://www.cyberciti.biz/faq/how-to-add-or-mount-directory-in-lxd-linux-container/
 
+Following sequence should be followed to launch a container running gazebo
+Needed to be run once only after installing lxd
+- snap-lxd-track-latest.sh
+- lxd-create-x11-profile.sh
+
+Then onwards whenever a container is required
+- gazebo-create-container.sh
+- gazebo-install-to-container.sh (installs ros 2 noetic and gazebo 9)
+
+Finally to login to conainer
+- gazebo-login-to-container.sh
