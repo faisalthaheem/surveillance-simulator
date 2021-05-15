@@ -10,6 +10,7 @@ Following sequence should be followed to launch a container running gazebo
 Needed to be run once only after installing lxd
 - snap-lxd-track-latest.sh
 - lxd-create-x11-profile.sh
+- lxd-fs-id-map.sh
 
 Then onwards whenever a container is required
 - gazebo-create-container.sh
