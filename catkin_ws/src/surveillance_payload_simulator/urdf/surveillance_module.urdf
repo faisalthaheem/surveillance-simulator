@@ -29,9 +29,13 @@
         </visual>
     </link>
 
-    <joint name="base_to_mast" type="fixed">
+    <joint name="base_to_mast" type="prismatic">
         <parent link="base_link"/>
         <child link="mast"/>
+
+        <axis xyz="0.0 0.0 1.0"/>
+        <limit effort="3.0" velocity="1.0" lower="-1.0" upper="3.0" />
+
     </joint>
 
     <link name="mast_head">
