@@ -8,8 +8,6 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-
-
   
     <link name="base_link">
         <visual>
