@@ -23,7 +23,7 @@ devices:
     gid: "1000"
     mode: "0777"
     type: proxy
-  X0:
+  X1:
     bind: container
     connect: unix:@/tmp/.X11-unix/X1
     listen: unix:@/tmp/.X11-unix/X0
