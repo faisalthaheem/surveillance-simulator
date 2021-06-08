@@ -16,19 +16,25 @@ RUN touch /etc/profile.d/ros-noetic-env.sh && chmod +x /etc/profile.d/ros-noetic
     echo "source /opt/ros/noetic/setup.bash" >> /etc/profile.d/ros-noetic-env.sh && \
     echo "source /home/dev/work/simulator/catkin_ws/devel/setup.bash" >> /etc/profile.d/ros-noetic-env.sh
 
-RUN source /etc/profile.d/ros-noetic-env.sh
-
-RUN apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+RUN apt update && export DEBIAN_FRONTEND=noninteractive && \
+    apt install -y \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-rosinstall-generator \
+    python3-wstool \
+    build-essential
 
 RUN rosdep init && rosdep update
 
-RUN export uid=1000 gid=1000 && \
-    mkdir -p /home/dev && \
-    echo "dev:x:${uid}:${gid}:Developer,,,:/home/dev:/bin/bash" >> /etc/passwd && \
-    echo "dev:x:${uid}:" >> /etc/group && \
-    echo "dev ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/dev && \
-    chmod 0440 /etc/sudoers.d/developer && \
-    chown ${uid}:${gid} -R /home/developer
+# RUN export uid=1000 gid=1000 && \
+#     mkdir -p /home/dev/work && \
+#     echo "dev:x:${uid}:${gid}:dev,,,:/home/dev:/bin/bash" >> /etc/passwd && \
+#     echo "dev:x:${uid}:" >> /etc/group && \
+#     echo "dev ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/dev && \
+#     chmod 0440 /etc/sudoers.d/dev && \
+#     chown ${uid}:${gid} -R /home/dev
 
-USER dev
-ENV HOME /home/dev
+# USER dev
+# ENV HOME /home/dev
+
+CMD /usr/bin/bash
