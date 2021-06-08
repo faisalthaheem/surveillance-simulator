@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<robot name="surveillance_module" xmlns:xacro="http://ros.org/wiki/xacro">
+    <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+
+    <xacro:macro name="default_inertial" params="mass">
+        <inertial>
+            <mass value="${mass}" />
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+        </inertial>
+    </xacro:macro>
+  
+    <link name="base_link">
+        
+        <visual>
+            <geometry>
+                <box size="2.0 2.0 1.0" />
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0.5"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <box size="2.0 2.0 1.0" />
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+    </link>
+
+     <!-- Used for fixing robot to Gazebo 'base_link' -->
+    <link name="world"/>
+
+    <joint name="fixed" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+
+    <link name="mast">
+
+        <visual>
+            <geometry>
+                <cylinder radius="0.2" length="5.0"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+    
+        <collision>
+            <geometry>
+                <cylinder radius="0.2" length="5.0"/>
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+
+    </link>
+
+    <joint name="base_to_mast" type="prismatic">
+        <parent link="base_link"/>
+        <child link="mast"/>
+
+        <axis xyz="0.0 0.0 1.0"/>
+        <limit effort="3.0" velocity="1.0" lower="-1.0" upper="3.0" />
+
+    </joint>
+
+    <link name="mast_head">
+        <visual>
+            <geometry>
+                <cylinder radius="0.2" length="0.2"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 2.6"/>
+            <material name="white" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.2" length="0.2"/>
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 1.0"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 3.1"/>
+            <material name="white" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 1.0"/>
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+
+        <visual>
+            <geometry>
+                <box size="1.0 0.1 0.1"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 3.65"/>
+            <material name="white" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="1.0 0.1 0.1"/>
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+    </link>
+
+    <joint name="mast_to_mast_head" type="continuous">
+        <parent link="mast"/>
+        <child link="mast_head"/>
+        <axis xyz="0.0 0.0 1.0"/>
+    </joint>
+
+    <link name="pitch_head">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1" length="0.1"/>
+            </geometry>
+            <!-- <origin rpy="0 1.5708 0" xyz="0.5 0 3.65"/> -->
+            <material name="blue" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.1" length="0.1"/>
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+    </link>
+
+    <joint name="mast_head_to_pitch" type="revolute">
+        <parent link="mast_head"/>
+        <child link="pitch_head"/>
+        <origin rpy="0 1.5708 0" xyz="0.5 0 3.65"/>
+
+        <axis xyz="0.0 0.0 1.0"/>
+        <limit effort="30" velocity="1.0" lower="-1.42" upper="1.42" />
+    </joint>
+
+    <link name="camera">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1" length="1.0"/>    
+            </geometry>    
+            <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <cylinder radius="0.1" length="1.0"/>    
+            </geometry>
+        </collision>
+
+        <xacro:default_inertial mass="10"/>
+    </link>
+
+    <joint name="pitch_to_camera" type="fixed">
+        <parent link="pitch_head"/>
+        <child link="camera"/>        
+    </joint>
+
+    <!-- Gazebo plugin for ROS Control -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/surveillance_module</robotNamespace>
+    </plugin>
+  </gazebo>
+</robot>

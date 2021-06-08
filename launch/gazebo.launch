@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+        <!-- overwriting these args -->
+        <arg name="debug" default="false" />
+        <arg name="gui" default="true" />
+        <arg name="pause" default="false" />
+        <arg name="world" default="$(find surveillance_simulator)/world/empty_world.world" />
+        <arg name="model" default="$(find surveillance_simulator)/urdf/surveillance_module.urdf"/>
+
+        <!-- include gazebo_ros launcher -->
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+                <arg name="world_name" value="$(arg world)" />
+                <arg name="debug" value="$(arg debug)" />
+                <arg name="gui" value="$(arg gui)" />
+                <arg name="paused" value="$(arg pause)" />
+                <arg name="use_sim_time" value="true" />
+        </include>
+
+        <!-- <param name="robot_description" command="$(find xacro)/xacro $(arg model)" /> -->
+
+        <!-- push robot_description to factory and spawn robot in gazebo -->
+        <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+                args="-z 1.0 -unpause -urdf -model surveillance_module -param robot_description" respawn="false" output="screen" /> -->
+
+        <!-- <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher">
+              <param name="publish_frequency" type="double" value="30.0" />
+        </node> -->
+</launch>

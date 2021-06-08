@@ -1,0 +1,15 @@
+<!-- Model definition: sphere/model.sdf -->
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="sphere">
+    <link name="body">
+      <visual name="v1">
+        <geometry>
+          <sphere>
+            <radius>0.1</radius>
+          </sphere>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
