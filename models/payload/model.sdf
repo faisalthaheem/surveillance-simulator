@@ -1,0 +1,195 @@
+<!-- Model definition: sphere/model.sdf -->
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="sphere">
+    <pose>0 0 1.0 0 0 0</pose>
+
+    <link name="base">
+        
+        <visual name="base">
+            <geometry>
+                <box>
+                  <size>2.0 2.0 1.0</size>
+                </box>
+            </geometry>
+        </visual>
+
+        <collision name="base">
+            <geometry>
+                <box>
+                  <size>2.0 2.0 1.0</size>
+                </box>
+            </geometry>
+        </collision>
+
+    </link>
+
+    <joint name="world_base" type="fixed">
+        <parent>world</parent>
+        <child>base</child>
+    </joint>
+
+    <link name="mast">
+
+        <visual name="mast">
+            <geometry>
+                <cylinder>
+                    <radius>0.2</radius>
+                    <length>5.0</length>
+                </cylinder>
+            </geometry>
+            <!-- <pose>0 0 0 0 0 0</pose> -->
+        </visual>
+    
+        <collision name="mast">
+            <geometry>
+                <cylinder>
+                    <radius>0.2</radius>
+                    <length>5.0</length>
+                </cylinder>
+            </geometry>
+        </collision>
+
+    </link>
+
+    <joint name="base_to_mast" type="prismatic">
+
+        <parent>base</parent>
+        <child>mast</child>
+
+        <axis>
+            <xyz>
+                0.0 0.0 1.0
+            </xyz>
+        </axis>
+    </joint>
+
+    <link name="slipring">
+        <visual name="slipring">
+            <geometry>
+                <cylinder>
+                    <radius>0.2</radius>
+                    <length>0.2</length>
+                </cylinder>
+            </geometry>
+            <pose>0 0 5.0 0 0 0</pose>
+        </visual>
+        
+        <collision name="slipring">
+            <geometry>
+                <cylinder>
+                    <radius>0.2</radius>
+                    <length>0.2</length>
+                </cylinder>
+            </geometry>
+            <!-- <pose>0 0 2.6 0 0 0</pose> -->
+        </collision>
+    </link>
+
+    <joint name="mast_slipring" type="continuous">
+        <parent>mast</parent>
+        <child>slipring</child>
+        <axis>
+            <xyz>
+                0.0 0.0 1.0
+            </xyz>
+        </axis>
+    </joint>
+
+    <link name="tbase">
+        <visual name="tbase">
+            <geometry>
+                <box>
+                  <size>0.1 0.1 1.0</size>
+                </box>
+            </geometry>
+            <pose>0 0 5.4 0 0 0</pose>
+        </visual>
+        <collision name="tbase">
+            <geometry>
+                <box>
+                  <size>0.1 0.1 1.0</size>
+                </box>                
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="slipring_tbase" type="fixed">
+        <parent>slipring</parent>
+        <child>tbase</child>
+        <axis>
+            <xyz>
+                0.0 0.0 1.0
+            </xyz>
+        </axis>
+    </joint>
+
+    <!-- <link name="pitch_head">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1" length="0.1"/>
+            </geometry>
+            <material name="blue" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.1" length="0.1"/>
+            </geometry>
+        </collision>
+
+    </link> -->
+        
+    <!-- <visual>
+        <visual name="tbar">
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+            <pose>0 0 3.65 0 0 0</pose>
+        </visual>
+        <collision name="tbar">
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+        </collision>
+    </link> -->
+
+
+
+    
+
+    <!-- <joint name="mast_head_to_pitch" type="revolute">
+        <parent link="mast_head"/>
+        <child link="pitch_head"/>
+        <origin rpy="0 1.5708 0" xyz="0.5 0 3.65"/>
+
+        <axis xyz="0.0 0.0 1.0"/>
+        <limit effort="30" velocity="1.0" lower="-1.42" upper="1.42" />
+    </joint> -->
+
+    <!-- <link name="camera">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1" length="1.0"/>    
+            </geometry>    
+            <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <cylinder radius="0.1" length="1.0"/>    
+            </geometry>
+        </collision>
+
+    </link> -->
+
+    <!-- <joint name="pitch_to_camera" type="fixed">
+        <parent link="pitch_head"/>
+        <child link="camera"/>        
+    </joint> -->
+
+  </model>
+</sdf>

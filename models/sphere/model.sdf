@@ -6,10 +6,27 @@
       <visual name="v1">
         <geometry>
           <sphere>
-            <radius>0.1</radius>
+            <radius>1.0</radius>
           </sphere>
         </geometry>
       </visual>
+
+      <collision name="collision">
+        <geometry>
+          <sphere>
+            <radius>1.0</radius>
+          </sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      
     </link>
   </model>
 </sdf>

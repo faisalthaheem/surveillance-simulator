@@ -17,10 +17,19 @@
 		<!-- A ground plane -->
 		<include>
 			<uri>model://ground_plane</uri>
+			<pose>0 0 0.0 0 0 0</pose>
+
 		</include>
 
 		<!-- <include>
-			<uri>model://../models/sphere</uri>
+			<uri>model://surveillance_simulator/models/sphere</uri>
+			<pose>0 0 5.5 0 0 0</pose>
+    		<name>sphere1</name>
 		</include> -->
+
+		<include>
+			<uri>model://surveillance_simulator/models/payload</uri>
+    		<name>pl1</name>
+		</include>
 	</world>
 </sdf>
