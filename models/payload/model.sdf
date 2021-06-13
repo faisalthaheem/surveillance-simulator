@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
     <model name="payload">
-    <static>true</static>
+    <static>false</static>
 
-    <!-- <joint name="world_base" type="fixed">
+    <joint name="world_base" type="fixed">
         <parent>world</parent>
         <child>base</child>
-    </joint> -->
+    </joint>
 
     <link name="base">        
         <pose>0 0 0.25 0 0 0</pose>
@@ -28,14 +28,13 @@
         </visual>
     </link>
 
-    <!-- <joint name="base_to_mast" type="fixed">
+    <joint name="base_to_mast" type="fixed">
 
         <parent>base</parent>
         <child>mast</child>
-        <pose>0 0 1.0 0 0 0</pose>
 
     </joint>
- -->
+
     <link name="mast">
         <pose>0 0 1.0 0 0 0</pose>
 
@@ -59,9 +58,9 @@
         
     </link>
 
-    <joint name="mast_slipring" type="revolute">
+    <joint name="mast_slip_ring_yaw" type="revolute">
         <parent>mast</parent>
-        <child>slipring</child>
+        <child>slip_ring_yaw</child>
         <type>continuous</type>
         <axis>
             <xyz>
@@ -70,7 +69,7 @@
         </axis>
     </joint>
 
-    <link name="slipring">
+    <link name="slip_ring_yaw">
 
         <pose>0 0 1.6 0 0 0</pose>
 
@@ -93,15 +92,15 @@
         </visual>
     </link>
 
-    <!-- <joint name="slipring_tbase" type="fixed">
-        <parent>slipring</parent>
+    <joint name="slip_ring_yaw_tbase" type="fixed">
+        <parent>slip_ring_yaw</parent>
         <child>tbase</child>
         <axis>
             <xyz>
                 0.0 0.0 1.0
             </xyz>
         </axis>
-    </joint> -->
+    </joint>
 
     <link name="tbase">
 
@@ -122,77 +121,59 @@
                 </box>
             </geometry>
         </visual>
+
+        <collision name="collisionhorizontal">
+            <pose>0 0 0.3 0 0 0</pose>
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+        </collision>
+        <visual name="visualhorizontal">
+            <pose>0 0 0.3 0 0 0</pose>
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+        </visual>
         
     </link>
 
+    <joint name="tbase_camera" type="revolute">
+        <parent>tbase</parent>
+        <child>camera</child>
+        <type>continuous</type>
+        <axis>
+            <xyz>
+                1.0 0.0 0.0
+            </xyz>
+        </axis>
+    </joint>
 
 
-    <!-- <link name="pitch_head">
-        <visual>
+    <link name="camera">
+        <pose>0.55 0 2.25 1.5707 0 0</pose>
+
+        <collision name="collision">
             <geometry>
-                <cylinder radius="0.1" length="0.1"/>
-            </geometry>
-            <material name="blue" />
-        </visual>
-        <collision>
-            <geometry>
-                <cylinder radius="0.1" length="0.1"/>
+                <cylinder>
+                    <radius>0.05</radius>
+                    <length>0.25</length>
+                </cylinder>
             </geometry>
         </collision>
-
-    </link> -->
         
-    <!-- <visual>
-        <visual name="tbar">
+        <visual name="visual">
             <geometry>
-                <box>
-                  <size>1.0 0.1 0.1</size>
-                </box>
+                <cylinder>
+                    <radius>0.05</radius>
+                    <length>0.25</length>
+                </cylinder>
             </geometry>
-            <pose>0 0 3.65 0 0 0</pose>
         </visual>
-        <collision name="tbar">
-            <geometry>
-                <box>
-                  <size>1.0 0.1 0.1</size>
-                </box>
-            </geometry>
-        </collision>
-    </link> -->
-
-
-
-    
-
-    <!-- <joint name="mast_head_to_pitch" type="revolute">
-        <parent link="mast_head"/>
-        <child link="pitch_head"/>
-        <origin rpy="0 1.5708 0" xyz="0.5 0 3.65"/>
-
-        <axis xyz="0.0 0.0 1.0"/>
-        <limit effort="30" velocity="1.0" lower="-1.42" upper="1.42" />
-    </joint> -->
-
-    <!-- <link name="camera">
-        <visual>
-            <geometry>
-                <cylinder radius="0.1" length="1.0"/>    
-            </geometry>    
-            <origin rpy="1.5708 0 0" xyz="0 0 0"/>
-        </visual>
-
-        <collision>
-            <geometry>
-                <cylinder radius="0.1" length="1.0"/>    
-            </geometry>
-        </collision>
-
-    </link> -->
-
-    <!-- <joint name="pitch_to_camera" type="fixed">
-        <parent link="pitch_head"/>
-        <child link="camera"/>        
-    </joint> -->
+    </link>
 
   </model>
 </sdf>
