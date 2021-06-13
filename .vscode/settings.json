@@ -1,5 +1,6 @@
 {
     "files.associations": {
       "*.sdf": "xml",
-    }
+    },
+    "cmake.configureOnOpen": false
   }
