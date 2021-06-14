@@ -64,10 +64,15 @@
         <type>continuous</type>
         <axis>
             <xyz>
-                0.0 0.0 1.6
+                0.0 0.0 1.0
             </xyz>
+            <dynamics>
+                <damping>0.05</damping>
+                <friction>1.05</friction>
+            </dynamics>
         </axis>
     </joint>
+
 
     <link name="slip_ring_yaw">
 
@@ -95,6 +100,7 @@
     <joint name="slip_ring_yaw_tbase" type="fixed">
         <parent>slip_ring_yaw</parent>
         <child>tbase</child>
+
         <axis>
             <xyz>
                 0.0 0.0 1.0
@@ -112,6 +118,14 @@
                   <size>0.1 0.1 0.5</size>
                 </box>                
             </geometry>
+            <surface>
+                <friction>
+                    <ode>
+                        <mu>0.35</mu>
+                        <mu>0.55</mu>
+                    </ode>
+                </friction>
+            </surface>
         </collision>
         
         <visual name="visual">
@@ -119,7 +133,7 @@
                 <box>
                   <size>0.1 0.1 0.5</size>
                 </box>
-            </geometry>
+            </geometry>Get Model State 
         </visual>
 
         <collision name="collisionhorizontal">
@@ -129,6 +143,14 @@
                   <size>1.0 0.1 0.1</size>
                 </box>
             </geometry>
+            <surface>
+                <friction>
+                    <ode>
+                        <mu>0.35</mu>
+                        <mu>0.55</mu>
+                    </ode>
+                </friction>
+            </surface>
         </collision>
         <visual name="visualhorizontal">
             <pose>0 0 0.3 0 0 0</pose>
@@ -138,6 +160,10 @@
                 </box>
             </geometry>
         </visual>
+
+        <intertial>
+            <mass>25</mass>
+        </intertial>
         
     </link>
 
@@ -149,6 +175,10 @@
             <xyz>
                 1.0 0.0 0.0
             </xyz>
+            <dynamics>
+                <damping>0.05</damping>
+                <friction>1.05</friction>
+            </dynamics>
         </axis>
     </joint>
 
@@ -163,6 +193,14 @@
                     <length>0.25</length>
                 </cylinder>
             </geometry>
+            <surface>
+                <friction>
+                <ode>
+                    <mu>0.35</mu>
+                    <mu>0.55</mu>
+                </ode>
+                </friction>
+            </surface>
         </collision>
         
         <visual name="visual">
@@ -173,6 +211,10 @@
                 </cylinder>
             </geometry>
         </visual>
+
+        <intertial>
+            <mass>5</mass>
+        </intertial>
     </link>
 
   </model>
