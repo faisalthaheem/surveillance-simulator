@@ -14,4 +14,13 @@
                 <arg name="paused" value="$(arg pause)" />
                 <arg name="use_sim_time" value="true" />
         </include>
+
+        <!-- http://wiki.ros.org/roslaunch/XML/node -->
+        <node 
+                name="payload_control_iface" 
+                pkg="surveillance_simulator" 
+                type="payload_control_iface.py" 
+                respawn="true"
+                respawn_delay="3"
+        />
 </launch>
