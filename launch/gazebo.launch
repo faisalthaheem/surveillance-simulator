@@ -22,5 +22,7 @@
                 type="payload_control_iface.py" 
                 respawn="true"
                 respawn_delay="3"
-        />
+        >
+                <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
+        </node>
 </launch>
