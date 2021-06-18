@@ -17,9 +17,19 @@
 
         <!-- http://wiki.ros.org/roslaunch/XML/node -->
         <node 
-                name="payload_control_iface" 
+                name="payload_controller" 
                 pkg="surveillance_simulator" 
-                type="payload_control_iface.py" 
+                type="payload_controller.py" 
+                respawn="true"
+                respawn_delay="3"
+        >
+                <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
+        </node>
+
+        <node 
+                name="stanag_and_payload_connector" 
+                pkg="surveillance_simulator" 
+                type="stanag_and_payload_connector.py" 
                 respawn="true"
                 respawn_delay="3"
         >
