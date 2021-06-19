@@ -2,12 +2,15 @@
 
 import logging
 import rospy
-import std_msgs
-
+import copy
 import sys, traceback
 import asyncio
 
 from stanag4586vsm.stanag_server import *
+from stanag4586edav1.message_wrapper import *
+from stanag4586edav1.message200 import *
+
+from surveillance_simulator.msg import Ptz
 
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -16,17 +19,36 @@ logger = logging.getLogger("StanagServer")
 logger.setLevel(logging.DEBUG)
 
 # the publisher to send ptz message through to payload control node
-pub_ptz = None
+to_topic_ptz = None
+
+#our local data storage
+ptz_cache = Ptz()
 
 #the currently running loop
 current_loop = None
 
-async def publish_ptz_target(msg):
-    pub_ptz.publish(stdmsgs.msg.String("hello " + msg))
+async def publish_ptz_target(wrapper, msg):
+
+    global ptz_cache
+    
+    #to keep track of when we need to publish
+    msg_to_publish = None
+
+    if wrapper.message_type == 0x200:
+        ptz_cache.pan = msg.set_centreline_azimuth_angle
+        ptz_cache.tilt = msg.set_centreline_elevation_angle
+
+        msg_to_publish = copy.copy(ptz_cache)
+
+    if msg_to_publish is not None:
+        to_topic_ptz.publish(msg_to_publish)
+
 
 def handle_message(wrapper, msg):
-    logger.info("Got message in stanag_to_ros_iface [{:x}]".format(wrapper.message_type))
-    current_loop.call_soon_threadsafe(publish_ptz_target, "faisal")
+    logger.debug("Got message in stanag_to_ros_iface [{:x}]".format(wrapper.message_type))
+    
+    #asyncio limitation
+    current_loop.create_task(publish_ptz_target(wrapper, msg))
 
 async def start_stanag_iface():
 
@@ -41,15 +63,16 @@ async def start_stanag_iface():
     logger.info("STANAG iface active")
 
     while rospy.is_shutdown() is False:
-        logger.debug("Sleeping in stanag loop")
         
-        await asyncio.sleep(1.0)
+        #run event loops for both frameworks, 50ms in total
+        await asyncio.sleep(0.25)
+        rospy.sleep(0.25)
 
     logger.info("STANAG iface exiting")
 
 async def main():
 
-    global pub_ptz
+    global to_topic_ptz
     global current_loop
 
     # save for callbacks
@@ -61,7 +84,8 @@ async def main():
         rospy.init_node('stanag_and_payload_connector')
 
         logger.info("Creating publishers and subscribers")
-        pub_ptz = rospy.Publisher('ptz_targets', std_msgs.msg.String, queue_size=10)
+        to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
+        rospy.sleep(0.0) #establish connection
 
         logger.info("Starting stanag interface")
         await start_stanag_iface()
