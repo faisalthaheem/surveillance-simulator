@@ -1,57 +1,77 @@
 #!/usr/bin/python3
 
-from gazebo_msgs.srv import GetModelState, ApplyJointEffort
+from os import link
+from gazebo_msgs.srv import GetLinkState, SetLinkState, ApplyJointEffort
+from gazebo_msgs.msg import LinkState
 import rospy
 import math
-
-from simple_pid import PID
+import copy
 
 from surveillance_simulator.msg import Ptz
 
 
-set_point_pan = 0.0
+get_link_state_proxy = None
+set_link_state_proxy = None
+apply_joint_effort_proxy = None
+
+target_centreline_azimuth_angle = 0.0
 
 def set_ptz_callback(ptz):
-    global set_point_pan
 
-    set_point_pan = ptz.pan
+    global target_centreline_azimuth_angle
 
-    rospy.loginfo("set_point_pan set to [{}]".format(set_point_pan))
+    target_centreline_azimuth_angle = ptz.pan
+
+
 
 def main():
     try:
 
+        global get_link_state_proxy
+        global set_link_state_proxy
+        global apply_joint_effort_proxy
+
         rospy.init_node('payload_control_iface')
 
-        rate = rospy.Rate(2) #todo read from config
+        rate = rospy.Rate(30) #todo read from config
 
         rospy.loginfo("Init rospy iface")
 
-        rospy.wait_for_service('/gazebo/get_model_state')
-        gms_proxy = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+        rospy.wait_for_service('/gazebo/get_link_state')
+        get_link_state_proxy = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+
+        rospy.wait_for_service('/gazebo/set_link_state')
+        set_link_state_proxy = rospy.ServiceProxy('/gazebo/set_link_state', SetLinkState)
 
         rospy.wait_for_service('/gazebo/apply_joint_effort')
-        aje_proxy = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
-
-        pid_pan = PID(1, 0.1, 0.05, setpoint=set_point_pan)
+        apply_joint_effort_proxy = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
 
         rospy.Subscriber("ptz_targets", Ptz, set_ptz_callback)
 
         while not rospy.is_shutdown():
-            model_state = gms_proxy("pl1","slip_ring_yaw")
-            # rospy.loginfo("Value of x : " + str(model_state.pose.position.x))
-            # rospy.loginfo("Value of y : " + str(model_state.pose.position.y))
-            pid_pan.setpoint = set_point_pan
-            effort = pid_pan(model_state.pose.orientation.z)
-            res = aje_proxy('mast_slip_ring_yaw', effort, rospy.Time(0.0), rospy.Duration.from_sec(1))
-            rospy.loginfo("Z [{}] Eff [{}]".format(str(math.degrees(model_state.pose.orientation.z)), effort))
 
+            linkstate = get_link_state_proxy("pl1::slip_ring_yaw", "")
+            if linkstate.success:
 
-            # res = aje_proxy('tbase_camera', 1.055, rospy.Time(0.0), rospy.Duration.from_sec(1))
+                if abs(linkstate.link_state.pose.orientation.z - target_centreline_azimuth_angle) > 0.02:
+                
+                    nustate = LinkState()
+                    nustate = copy.copy(linkstate.link_state)
+
+                    nustate.pose.orientation.z += 0.005
+
+                    set_link_state_proxy(nustate)
+
+            else:
+                rospy.logerr("get_link_state_proxy call failed")
+
 
             rate.sleep()
 
-        aje_proxy.close()
+        #clean up
+        apply_joint_effort_proxy.close()
+        get_link_state_proxy.close()
+        set_link_state_proxy.close()
 
     except rospy.ServiceException as e:
         rospy.loginfo("Service call failed:  {0}".format(e))
