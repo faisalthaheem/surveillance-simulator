@@ -25,6 +25,13 @@
                   <size>2.0 2.0 0.5</size>
                 </box>
             </geometry>
+            <material>
+                <script>
+                    <uri>model://payload/materials/scripts</uri>
+                    <uri>model://payload/materials/textures</uri>
+                    <name>base/asphalt</name>
+                </script>
+            </material>
         </visual>
     </link>
 

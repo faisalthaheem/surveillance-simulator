@@ -21,7 +21,7 @@
     </include>
 
 	<include>
-		<uri>model://surveillance_simulator/models/payload</uri>
+		<uri>model://payload</uri>
 		<name>pl1</name>
 		<pose>-5.0 0 0.0 0 0 0</pose>
 	</include>	
