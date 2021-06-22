@@ -6,15 +6,16 @@ from gazebo_msgs.msg import LinkState
 import rospy
 import math
 import copy
+import tf.transformations
 
 from surveillance_simulator.msg import Ptz
-
 
 get_link_state_proxy = None
 set_link_state_proxy = None
 apply_joint_effort_proxy = None
 
 target_centreline_azimuth_angle = 0.0
+current_centerline_azimuth_angle = 0.0
 
 def set_ptz_callback(ptz):
 
@@ -33,7 +34,7 @@ def main():
 
         rospy.init_node('payload_control_iface')
 
-        rate = rospy.Rate(30) #todo read from config
+        rate = rospy.Rate(10) #todo read from config
 
         rospy.loginfo("Init rospy iface")
 
@@ -50,20 +51,25 @@ def main():
 
         while not rospy.is_shutdown():
 
-            linkstate = get_link_state_proxy("pl1::slip_ring_yaw", "")
-            if linkstate.success:
 
-                if abs(linkstate.link_state.pose.orientation.z - target_centreline_azimuth_angle) > 0.02:
-                
-                    nustate = LinkState()
-                    nustate = copy.copy(linkstate.link_state)
+            slip_ring_state = get_link_state_proxy("pl1::slip_ring_yaw", "")
 
-                    nustate.pose.orientation.z += 0.005
+            if slip_ring_state.success:
 
-                    set_link_state_proxy(nustate)
+                q = slip_ring_state.link_state.pose.orientation
+                rpy = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
+                current_centerline_azimuth_angle = rpy[2]
+                rospy.loginfo("current_centerline_azimuth_angle = {}".format(math.degrees(current_centerline_azimuth_angle)))
 
-            else:
-                rospy.logerr("get_link_state_proxy call failed")
+                force = 0.0
+                if abs(current_centerline_azimuth_angle - target_centreline_azimuth_angle) > 0.017:
+                    if current_centerline_azimuth_angle > target_centreline_azimuth_angle:
+                        force = -2.0
+                    else:
+                        force = 2.0
+
+                    if force != 0.0:
+                        res = apply_joint_effort_proxy('mast_slip_ring_yaw', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
 
             rate.sleep()

@@ -70,6 +70,10 @@
                 <damping>0.05</damping>
                 <friction>1.05</friction>
             </dynamics>
+            <limit>
+                <!-- 15 rad/s -->
+                <velocity>0.261799</velocity>
+            </limit>
         </axis>
     </joint>
 
