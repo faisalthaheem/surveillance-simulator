@@ -27,9 +27,11 @@
             </geometry>
             <material>
                 <script>
-                    <uri>model://payload/materials/scripts</uri>
+                    <!-- <uri>model://payload/materials/scripts</uri>
                     <uri>model://payload/materials/textures</uri>
-                    <name>base/asphalt</name>
+                    <name>base/asphalt</name> -->
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/DarkGrey</name>
                 </script>
             </material>
         </visual>
@@ -61,6 +63,15 @@
                     <length>1.0</length>
                 </cylinder>
             </geometry>
+            <material>
+                <script>
+                    <!-- <uri>model://payload/materials/scripts</uri>
+                    <uri>model://payload/materials/textures</uri>
+                    <name>camo/jungle</name> -->
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material>
         </visual>
         
     </link>
@@ -105,6 +116,12 @@
                     <length>0.2</length>
                 </cylinder>
             </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material>
         </visual>
     </link>
 
@@ -144,7 +161,13 @@
                 <box>
                   <size>0.1 0.1 0.5</size>
                 </box>
-            </geometry>Get Model State 
+            </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/DarkGrey</name>
+                </script>
+            </material> 
         </visual>
 
         <collision name="collisionhorizontal">
@@ -170,6 +193,12 @@
                   <size>1.0 0.1 0.1</size>
                 </box>
             </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material> 
         </visual>
 
         <intertial>
@@ -221,12 +250,62 @@
                     <length>0.25</length>
                 </cylinder>
             </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/ZincYellow</name>
+                </script>
+            </material> 
         </visual>
 
         <intertial>
             <mass>5</mass>
         </intertial>
-    </link>
 
+        <sensor type="camera" name="eo_cam">
+            <update_rate>10.0</update_rate>
+            <pose>0 0 0 0 1.5707 0</pose>
+            <visualize>true</visualize>
+
+            <camera name="head">
+                <!-- <save enabled="true">
+                    <path>tmp_cam_images</path>
+                </save> -->
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>800</width>
+                    <height>600</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>300</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <!-- Noise is sampled independently per pixel on each frame.
+                        That pixel's noise value is added to each of its color
+                        channels, which at that point lie in the range [0,1]. -->
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>0.0</updateRate>
+                <cameraName>payload/eo_cam</cameraName>
+                <imageTopicName>image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                <!-- <frameName>camera_link</frameName> -->
+                <frameName>map</frameName>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+            </plugin>
+        </sensor>
+    </link>
   </model>
 </sdf>
