@@ -15,6 +15,30 @@
                 <arg name="use_sim_time" value="true" />
         </include>
 
+        <!-- RTSP media server-->
+        <node 
+                name="rtsp_media_server" 
+                pkg="surveillance_simulator" 
+                type="process_proxy.py" 
+                args="" 
+                respawn="true"
+                respawn_delay="3"
+        >
+                <env name="NODE_NAME" value="rtspserver" />
+                <env name="BIN_PATH" value="$(find surveillance_simulator)/bin/rtsp-server" />
+                <env name="ARGS" value="$(find surveillance_simulator)/config/rtsp-mounts.config" />
+
+        </node>
+
+        <node 
+                name="eo_cam_rtsp_stream_src" 
+                pkg="surveillance_simulator" 
+                type="eo_cam_rtsp_stream_src.py" 
+                respawn="true"
+                respawn_delay="3"
+        >
+        </node>
+
         <!-- http://wiki.ros.org/roslaunch/XML/node -->
         <node 
                 name="payload_controller" 
