@@ -16,13 +16,16 @@ apply_joint_effort_proxy = None
 
 target_centreline_azimuth_angle = 0.0
 current_centerline_azimuth_angle = 0.0
+target_centerline_elevation_angle = 1.57
+current_centerline_elevation_angle = 0.0
 
 def set_ptz_callback(ptz):
 
     global target_centreline_azimuth_angle
+    global target_centerline_elevation_angle
 
     target_centreline_azimuth_angle = ptz.pan
-
+    target_centerline_elevation_angle = ptz.tilt
 
 
 def main():
@@ -52,25 +55,41 @@ def main():
         while not rospy.is_shutdown():
 
 
-            slip_ring_state = get_link_state_proxy("pl1::slip_ring_yaw", "")
+            yaw_slip_ring_state = get_link_state_proxy("pl1::slip_ring_yaw", "")
+            camera_tilt = get_link_state_proxy("pl1::camera", "")
 
-            if slip_ring_state.success:
+            if yaw_slip_ring_state.success:
 
-                q = slip_ring_state.link_state.pose.orientation
+                q = yaw_slip_ring_state.link_state.pose.orientation
                 rpy = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
                 current_centerline_azimuth_angle = rpy[2]
-                rospy.loginfo("current_centerline_azimuth_angle = {}".format(math.degrees(current_centerline_azimuth_angle)))
+                # rospy.loginfo("current_centerline_azimuth_angle = {}".format(math.degrees(current_centerline_azimuth_angle)))
 
                 force = 0.0
-                if abs(current_centerline_azimuth_angle - target_centreline_azimuth_angle) > 0.017:
+                if abs(current_centerline_azimuth_angle - target_centreline_azimuth_angle) > float(0.017):
                     if current_centerline_azimuth_angle > target_centreline_azimuth_angle:
                         force = -2.0
                     else:
                         force = 2.0
 
-                    if force != 0.0:
-                        res = apply_joint_effort_proxy('mast_slip_ring_yaw', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                if force != 0.0:
+                    res = apply_joint_effort_proxy('mast_slip_ring_yaw', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
+            if camera_tilt.success:
+
+                q = camera_tilt.link_state.pose.orientation
+                rpy = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
+                current_centerline_elevation_angle = rpy[0]
+
+                force = 0.0
+                if abs(current_centerline_elevation_angle - target_centerline_elevation_angle) > float(0.017):
+                    if current_centerline_elevation_angle > target_centerline_elevation_angle:
+                        force = -2.0
+                    else:
+                        force = 2.0
+                        
+                if force != 0.0:
+                    res = apply_joint_effort_proxy('slip_ring_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
             rate.sleep()
 

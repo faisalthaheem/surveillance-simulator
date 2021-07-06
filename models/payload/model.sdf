@@ -79,7 +79,7 @@
     <joint name="mast_slip_ring_yaw" type="revolute">
         <parent>mast</parent>
         <child>slip_ring_yaw</child>
-        <type>continuous</type>
+        <!-- <type>continuous</type> -->
         <axis>
             <xyz>
                 0.0 0.0 1.0
@@ -207,14 +207,19 @@
         
     </link>
 
-    <joint name="tbase_camera" type="revolute">
+    <joint name="slip_ring_camera_tilt" type="revolute">
         <parent>tbase</parent>
         <child>camera</child>
-        <type>continuous</type>
         <axis>
             <xyz>
                 1.0 0.0 0.0
             </xyz>
+            <limit>
+                <!-- 15 rad/s -->
+                <velocity>0.261799</velocity>
+                <lower>-1.57</lower>
+                <upper>1.57</upper>
+            </limit>
             <dynamics>
                 <damping>0.05</damping>
                 <friction>1.05</friction>

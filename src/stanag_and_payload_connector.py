@@ -35,10 +35,12 @@ async def publish_ptz_target(wrapper, msg):
     msg_to_publish = None
 
     if wrapper.message_type == 0x200:
-        ptz_cache.pan = msg.set_centreline_azimuth_angle
-        ptz_cache.tilt = msg.set_centreline_elevation_angle
+        ptz_cache.pan = float(msg.set_centreline_azimuth_angle)
+        ptz_cache.tilt = float(msg.set_centreline_elevation_angle)
 
         msg_to_publish = copy.copy(ptz_cache)
+
+        logger.debug("Setting Pan [{}] and Tilt [{}]".format(msg_to_publish.pan, msg_to_publish.tilt))
 
     if msg_to_publish is not None:
         to_topic_ptz.publish(msg_to_publish)
