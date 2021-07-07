@@ -24,7 +24,7 @@
                 respawn="true"
                 respawn_delay="3"
         >
-                <env name="NODE_NAME" value="rtspserver" />
+                <env name="NODE_NAME" value="rtsp_media_server" />
                 <env name="BIN_PATH" value="$(find surveillance_simulator)/bin/rtsp-server" />
                 <env name="ARGS" value="$(find surveillance_simulator)/config/rtsp-mounts.config" />
 
@@ -48,6 +48,8 @@
                 respawn_delay="3"
         >
                 <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
+                <!-- absolute = Message200 - relative = Message20000 -->
+                <env name="PAN_TILT_MODE" value="relative" />
         </node>
 
         <node 

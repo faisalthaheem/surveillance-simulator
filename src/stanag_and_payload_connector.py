@@ -10,7 +10,7 @@ from stanag4586vsm.stanag_server import *
 from stanag4586edav1.message_wrapper import *
 from stanag4586edav1.message200 import *
 
-from surveillance_simulator.msg import Ptz
+from surveillance_simulator.msg import Ptz, RelativePanTilt
 
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -20,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 # the publisher to send ptz message through to payload control node
 to_topic_ptz = None
+to_topic_relative_pt = None
 
 #our local data storage
 ptz_cache = Ptz()
@@ -27,30 +28,46 @@ ptz_cache = Ptz()
 #the currently running loop
 current_loop = None
 
-async def publish_ptz_target(wrapper, msg):
+async def process_message(wrapper, msg):
 
     global ptz_cache
     
     #to keep track of when we need to publish
     msg_to_publish = None
 
-    if wrapper.message_type == 0x200:
+    if wrapper.message_type == 200:
         ptz_cache.pan = float(msg.set_centreline_azimuth_angle)
         ptz_cache.tilt = float(msg.set_centreline_elevation_angle)
 
         msg_to_publish = copy.copy(ptz_cache)
 
-        logger.debug("Setting Pan [{}] and Tilt [{}]".format(msg_to_publish.pan, msg_to_publish.tilt))
-
-    if msg_to_publish is not None:
+        logger.debug("On MSG_200 Setting Pan [{}] and Tilt [{}]".format(msg_to_publish.pan, msg_to_publish.tilt))
         to_topic_ptz.publish(msg_to_publish)
+    
+    elif wrapper.message_type == 20000:
+
+        rpt = RelativePanTilt()
+        rpt.pan_force = float(msg.pan_force)
+        rpt.pan_direction = msg.pan_direction
+        rpt.tilt_force = float(msg.tilt_force)
+        rpt.tilt_direction = msg.tilt_direction
+
+        msg_to_publish = rpt
+
+        logger.debug("On MSG_20000 Setting pan_force [{}] pan_direction [{}] tilt_force [{}] tilt_direction [{}]".format(
+            rpt.pan_force,
+            rpt.pan_direction,
+            rpt.tilt_force,
+            rpt.tilt_direction,
+        ))
+        to_topic_relative_pt.publish(msg_to_publish)
 
 
 def handle_message(wrapper, msg):
-    logger.debug("Got message in stanag_to_ros_iface [{:x}]".format(wrapper.message_type))
+    logger.debug("Got message in stanag_to_ros_iface [{}]".format(wrapper.message_type))
     
     #asyncio limitation
-    current_loop.create_task(publish_ptz_target(wrapper, msg))
+    current_loop.create_task(process_message(wrapper, msg))
 
 async def start_stanag_iface():
 
@@ -75,6 +92,7 @@ async def start_stanag_iface():
 async def main():
 
     global to_topic_ptz
+    global to_topic_relative_pt
     global current_loop
 
     # save for callbacks
@@ -87,6 +105,7 @@ async def main():
 
         logger.info("Creating publishers and subscribers")
         to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
+        to_topic_relative_pt = rospy.Publisher('relative_pan_tilt', RelativePanTilt, queue_size=10)
         rospy.sleep(0.0) #establish connection
 
         logger.info("Starting stanag interface")
