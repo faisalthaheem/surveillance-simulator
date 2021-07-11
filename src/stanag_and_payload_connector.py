@@ -1,14 +1,18 @@
 #!/usr/bin/python3
 
+import os
 import logging
 import rospy
 import copy
 import sys, traceback
 import asyncio
+import json
 
 from stanag4586vsm.stanag_server import *
 from stanag4586edav1.message_wrapper import *
 from stanag4586edav1.message200 import *
+from stanag4586edav1.message20010 import *
+from stanag4586edav1.message20020 import *
 
 from surveillance_simulator.msg import Ptz, RelativePanTilt
 
@@ -27,6 +31,12 @@ ptz_cache = Ptz()
 
 #the currently running loop
 current_loop = None
+
+#the stanag server
+server = None
+
+#config variables read through env
+EXTERNAL_RTSP_IP_ADDRESS = os.environ.get("EXTERNAL_RTSP_IP_ADDRESS","localhost")
 
 async def process_message(wrapper, msg):
 
@@ -62,6 +72,22 @@ async def process_message(wrapper, msg):
         ))
         to_topic_relative_pt.publish(msg_to_publish)
 
+    elif wrapper.message_type == 20010:
+        msg20020 = Message20020(Message20020.MSGNULL)
+    
+        msg20020.time_stamp = 0x00
+        msg20020.vehicle_id = msg.vehicle_id
+        msg20020.cucs_id = msg.cucs_id
+        msg20020.station_number = msg.station_number
+        msg20020.requested_query_type = msg.query_type
+        msg20020.set_response(json.dumps({"daylight":"rtsp://{}:8554/live".format(EXTERNAL_RTSP_IP_ADDRESS)}))
+
+        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
+        wrapped_reply = wrapped_reply.wrap_message(wrapper.msg_instance_id, 20020, msg20020, False)
+
+        current_loop.call_soon(server.tx_data, wrapped_reply)
+    
+
 
 def handle_message(wrapper, msg):
     logger.debug("Got message in stanag_to_ros_iface [{}]".format(wrapper.message_type))
@@ -71,10 +97,12 @@ def handle_message(wrapper, msg):
 
 async def start_stanag_iface():
 
+    global server
+
     logger.debug("Creating server")
     server = StanagServer(logging.DEBUG)
 
-    await server.setup_service(current_loop)
+    await server.setup_service(current_loop, StanagServer.MODE_VEHICLE)
 
     #set our callback to start getting requests unprocessed by default implementation
     server.get_entity("eo").set_callback_for_unhandled_messages(handle_message)

@@ -60,5 +60,6 @@
                 respawn_delay="3"
         >
                 <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
+                <env name="EXTERNAL_RTSP_IP_ADDRESS" value="192.168.230.169" />
         </node>
 </launch>
