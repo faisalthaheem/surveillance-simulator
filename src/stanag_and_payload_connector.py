@@ -13,6 +13,7 @@ from stanag4586edav1.message_wrapper import *
 from stanag4586edav1.message200 import *
 from stanag4586edav1.message20010 import *
 from stanag4586edav1.message20020 import *
+from stanag4586edav1.message21 import *
 
 from surveillance_simulator.msg import Ptz, RelativePanTilt
 
@@ -80,7 +81,7 @@ async def process_message(wrapper, msg):
         msg20020.cucs_id = msg.cucs_id
         msg20020.station_number = msg.station_number
         msg20020.requested_query_type = msg.query_type
-        msg20020.set_response(json.dumps({"daylight":"rtsp://{}:8554/live".format(EXTERNAL_RTSP_IP_ADDRESS)}))
+        msg20020.set_response(json.dumps({"daylight":"rtsp://{}:8554/hd".format(EXTERNAL_RTSP_IP_ADDRESS)}))
 
         wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
         wrapped_reply = wrapped_reply.wrap_message(wrapper.msg_instance_id, 20020, msg20020, False)
@@ -102,7 +103,7 @@ async def start_stanag_iface():
     logger.debug("Creating server")
     server = StanagServer(logging.DEBUG)
 
-    await server.setup_service(current_loop, StanagServer.MODE_VEHICLE)
+    await server.setup_service(current_loop, StanagServer.MODE_VEHICLE, Message21.VEHICLE_TYPE_UGV, Message21.UGV_SUB_TYPE_SURV)
 
     #set our callback to start getting requests unprocessed by default implementation
     server.get_entity("eo").set_callback_for_unhandled_messages(handle_message)
