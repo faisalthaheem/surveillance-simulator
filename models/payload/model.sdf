@@ -87,6 +87,53 @@
                 </script>
             </material>
         </visual>
+
+        <visual name="visual_mast_bottom">
+            <pose>0 0 -1.0 0 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.3</radius>
+                    <length>1.0</length>
+                </cylinder>
+            </geometry>
+            <material>
+                <script>
+                    <!-- <uri>model://payload/materials/scripts</uri>
+                    <uri>model://payload/materials/textures</uri>
+                    <name>camo/jungle</name> -->
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material>
+        </visual>
+        
+    </link>
+
+
+    <joint name="base_to_mast_cylinder" type="fixed">
+
+        <parent>base</parent>
+        <child>mast_cylinder</child>
+
+    </joint>
+
+    <link name="mast_cylinder">
+        <pose>0 0 1.0 0 0 0</pose>
+
+        <visual name="visual">
+            <geometry>
+                <cylinder>
+                    <radius>0.4</radius>
+                    <length>1.2</length>
+                </cylinder>
+            </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material>
+        </visual>
         
     </link>
 
