@@ -13,6 +13,7 @@ from stanag4586edav1.message_wrapper import *
 from stanag4586edav1.message200 import *
 from stanag4586edav1.message20010 import *
 from stanag4586edav1.message20020 import *
+from stanag4586edav1.message20040 import *
 from stanag4586edav1.message21 import *
 
 from surveillance_simulator.msg import Ptz, RelativePanTilt, MastCommand, MastStatus
@@ -39,6 +40,39 @@ server = None
 
 #config variables read through env
 EXTERNAL_RTSP_IP_ADDRESS = os.environ.get("EXTERNAL_RTSP_IP_ADDRESS","localhost")
+
+
+def mast_status_callback(msg):
+
+    if server is None: return
+    
+    station = server.get_entity("mast")
+    if station is None:
+        logger.debug("Station is none. Cannot get mast details.") 
+        return
+
+    monitoring_cucs = station.getMonitoringCucs()
+
+    msg20040 = Message20040(Message20040.MSGNULL)
+
+    msg20040.time_stamp = 0x00
+    msg20040.vehicle_id = station.getVehicleId()
+    msg20040.station_number = station.getStationId()
+    msg20040.min_height = msg.min_height
+    msg20040.max_height = msg.max_height
+    msg20040.current_height = msg.current_height
+    msg20040.error_code = msg.error_code
+
+    for cucsid in monitoring_cucs:
+
+        msg20040.cucs_id = cucsid
+    
+        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
+        wrapped_reply = wrapped_reply.wrap_message(1, 20040, msg20040, False)
+
+        current_loop.call_soon(server.tx_data, wrapped_reply)
+    
+    logger.debug("Exit Published mast status") 
 
 async def process_message(wrapper, msg):
 
@@ -150,6 +184,9 @@ async def main():
         to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
         to_topic_relative_pt = rospy.Publisher('relative_pan_tilt', RelativePanTilt, queue_size=10)
         to_topic_mast_command = rospy.Publisher('mast_command', MastCommand, queue_size=10)
+
+        #subscribe to statuses
+        rospy.Subscriber("mast_status", MastStatus, mast_status_callback)
 
         rospy.sleep(1.0) #establish connection
 

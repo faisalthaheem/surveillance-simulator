@@ -53,6 +53,16 @@
         </node>
 
         <node 
+                name="model_state_publisher" 
+                pkg="surveillance_simulator" 
+                type="model_state_publisher.py" 
+                respawn="true"
+                respawn_delay="3"
+        >
+                <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
+        </node>
+
+        <node 
                 name="stanag_and_payload_connector" 
                 pkg="surveillance_simulator" 
                 type="stanag_and_payload_connector.py" 
