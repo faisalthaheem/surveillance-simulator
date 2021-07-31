@@ -53,6 +53,8 @@ add_message_files(
   FILES
   Ptz.msg
   RelativePanTilt.msg
+  MastCommand.msg
+  MastStatus.msg
 )
 
 ## Generate services in the 'srv' folder

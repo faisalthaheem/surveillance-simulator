@@ -1,0 +1,2 @@
+uint8 command_type
+float32 absolute_height

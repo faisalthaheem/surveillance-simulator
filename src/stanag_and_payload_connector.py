@@ -15,7 +15,7 @@ from stanag4586edav1.message20010 import *
 from stanag4586edav1.message20020 import *
 from stanag4586edav1.message21 import *
 
-from surveillance_simulator.msg import Ptz, RelativePanTilt
+from surveillance_simulator.msg import Ptz, RelativePanTilt, MastCommand, MastStatus
 
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -26,6 +26,7 @@ logger.setLevel(logging.DEBUG)
 # the publisher to send ptz message through to payload control node
 to_topic_ptz = None
 to_topic_relative_pt = None
+to_topic_mast_command = None
 
 #our local data storage
 ptz_cache = Ptz()
@@ -74,6 +75,7 @@ async def process_message(wrapper, msg):
         to_topic_relative_pt.publish(msg_to_publish)
 
     elif wrapper.message_type == 20010:
+        #todo - handle station for responding with correct config
         msg20020 = Message20020(Message20020.MSGNULL)
     
         msg20020.time_stamp = 0x00
@@ -88,6 +90,17 @@ async def process_message(wrapper, msg):
 
         current_loop.call_soon(server.tx_data, wrapped_reply)
     
+    elif wrapper.message_type == 20030:
+
+        mastCmd = MastCommand()
+        mastCmd.command_type = int(msg.command_type)
+        mastCmd.absolute_height = float(msg.absolute_height)
+
+        logger.debug("On MSG_20030 command_type [{}] absolute_height [{}]".format(
+            mastCmd.command_type,
+            mastCmd.absolute_height
+        ))
+        to_topic_mast_command.publish(mastCmd)
 
 
 def handle_message(wrapper, msg):
@@ -113,8 +126,8 @@ async def start_stanag_iface():
     while rospy.is_shutdown() is False:
         
         #run event loops for both frameworks, 50ms in total
-        await asyncio.sleep(0.25)
-        rospy.sleep(0.25)
+        await asyncio.sleep(0.025)
+        rospy.sleep(0.025)
 
     logger.info("STANAG iface exiting")
 
@@ -122,6 +135,7 @@ async def main():
 
     global to_topic_ptz
     global to_topic_relative_pt
+    global to_topic_mast_command
     global current_loop
 
     # save for callbacks
@@ -135,7 +149,9 @@ async def main():
         logger.info("Creating publishers and subscribers")
         to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
         to_topic_relative_pt = rospy.Publisher('relative_pan_tilt', RelativePanTilt, queue_size=10)
-        rospy.sleep(0.0) #establish connection
+        to_topic_mast_command = rospy.Publisher('mast_command', MastCommand, queue_size=10)
+
+        rospy.sleep(1.0) #establish connection
 
         logger.info("Starting stanag interface")
         await start_stanag_iface()
