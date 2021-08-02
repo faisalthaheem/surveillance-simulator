@@ -308,7 +308,11 @@
                 </friction>
             </surface>
         </collision>
-        
+
+        <intertial>
+            <mass>5</mass>
+        </intertial>
+
         <visual name="visual">
             <geometry>
                 <cylinder>
@@ -324,13 +328,24 @@
             </material> 
         </visual>
 
-        <intertial>
-            <mass>5</mass>
-        </intertial>
+        <visual name="visual-lrf">
+            <pose>0.075 0 0 0 0 0</pose>
+            <geometry>
+                <box>
+                    <size>0.06 0.06 0.20</size>
+                </box>
+            </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Silver</name>
+                </script>
+            </material> 
+        </visual>
 
         <sensor type="camera" name="eo_cam">
             <update_rate>10.0</update_rate>
-            <pose>0 0 0 0 1.5707 0</pose>
+            <pose>0 0 -0.1 0 1.5707 0</pose>
             <visualize>true</visualize>
 
             <camera name="head">
