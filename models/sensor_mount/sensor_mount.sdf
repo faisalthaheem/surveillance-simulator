@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+    <model name="sensor_mount">
+    <static>false</static>
+    
+    <link name="sensor_mount_base">
+    
+        <collision name="collision">
+            <geometry>
+                <box>
+                  <size>0.1 0.1 0.5</size>
+                </box>                
+            </geometry>
+            <surface>
+                <friction>
+                    <ode>
+                        <mu>0.35</mu>
+                        <mu>0.55</mu>
+                    </ode>
+                </friction>
+            </surface>
+        </collision>
+        
+        <visual name="visual">
+            <geometry>
+                <box>
+                  <size>0.1 0.1 0.5</size>
+                </box>
+            </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/DarkGrey</name>
+                </script>
+            </material> 
+        </visual>
+
+        <collision name="collisionhorizontal">
+            <pose>0 0 0.3 0 0 0</pose>
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+            <surface>
+                <friction>
+                    <ode>
+                        <mu>0.35</mu>
+                        <mu>0.55</mu>
+                    </ode>
+                </friction>
+            </surface>
+        </collision>
+        <visual name="visualhorizontal">
+            <pose>0 0 0.3 0 0 0</pose>
+            <geometry>
+                <box>
+                  <size>1.0 0.1 0.1</size>
+                </box>
+            </geometry>
+            <material>
+                <script>
+                    <uri>file://media/materials/scripts/gazebo.material</uri>
+                    <name>Gazebo/Grey</name>
+                </script>
+            </material> 
+        </visual>
+
+        <intertial>
+            <mass>25</mass>
+        </intertial>
+        
+    </link>
+
+  </model>
+</sdf>

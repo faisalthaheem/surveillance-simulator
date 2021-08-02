@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from os import getenv
+from os import getenv, link
 from gazebo_msgs.srv import GetLinkState, SetLinkState, ApplyJointEffort
 from gazebo_msgs.msg import LinkState
 import rospy
@@ -36,8 +36,8 @@ MAST_MIN = 1
 MAST_MAX = 3
 MAST_STEP = 0.02
 
-mast_height_target = 1.0
-pid_mast = PID(50.0, 50.0, 10.0, setpoint=mast_height_target)
+mast_height_target = 1.2
+pid_mast = PID(20.0, 50.0, 10.0, setpoint=mast_height_target)
 
 
 def set_ptz_callback(ptz):
@@ -67,6 +67,16 @@ def mast_command_callback(msg):
 
     pid_mast.setpoint = mast_height_target
 
+def getLinkState(link_name):
+    return get_link_state_proxy(link_name, "")
+
+"""Based on the pose, certain config parameters need to be adjusted to allow model to keep functioning"""
+def setInitialConfiguration():
+    global mast_height_target
+
+    mast_state = getLinkState("pl1::extendable_mast::mast")
+    mast_height_target  = mast_state.link_state.pose.position.z
+    pid_mast.setpoint = mast_height_target
 
 def main():
     try:
@@ -92,6 +102,8 @@ def main():
         rospy.wait_for_service('/gazebo/apply_joint_effort')
         apply_joint_effort_proxy = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
 
+        #setInitialConfiguration()
+
         rospy.Subscriber("ptz_targets", Ptz, set_ptz_callback)
         rospy.Subscriber("relative_pan_tilt", RelativePanTilt, set_relative_pan_tilt_callback)
         rospy.Subscriber("mast_command", MastCommand, mast_command_callback)
@@ -99,10 +111,11 @@ def main():
         #http://docs.ros.org/en/diamondback/api/gazebo/html/srv/GetLinkState.html
         while not rospy.is_shutdown():
             
-            mast_state = get_link_state_proxy("pl1::mast", "")
+            mast_state = getLinkState("pl1::extendable_mast::em_mast")
+            observation = mast_state.link_state.pose.position.z
 
-            err = mast_state.link_state.pose.position.z
-            force = pid_mast(err)
+            print("Mast state [{}], target [{}]".format(observation, mast_height_target))
+            force = pid_mast(observation)
 
             res = apply_joint_effort_proxy(
                 'base_to_mast', 
@@ -113,8 +126,8 @@ def main():
 
 
             if isRelativePanTiltMode is False:
-                yaw_slip_ring_state = get_link_state_proxy("pl1::slip_ring_yaw", "")
-                camera_tilt = get_link_state_proxy("pl1::camera", "")
+                yaw_slip_ring_state = get_link_state_proxy("pl1::mast_sensor_mount", "")
+                camera_tilt = get_link_state_proxy("pl1::camera_with_lrf::camera", "")
 
                 if yaw_slip_ring_state.success:
 
@@ -131,7 +144,7 @@ def main():
                             force = 2.0
 
                     if force != 0.0:
-                        res = apply_joint_effort_proxy('mast_slip_ring_yaw', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                        res = apply_joint_effort_proxy('mast_sensor_mount', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
                 if camera_tilt.success:
 
@@ -147,7 +160,7 @@ def main():
                             force = 2.0
                             
                     if force != 0.0:
-                        res = apply_joint_effort_proxy('slip_ring_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                        res = apply_joint_effort_proxy('daylight_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
             else:
 
                 if relative_pan_tilt.pan_direction != 0:
@@ -156,7 +169,7 @@ def main():
                     if relative_pan_tilt.pan_direction > 0:
                         force *= -1.0
                     
-                    res = apply_joint_effort_proxy('mast_slip_ring_yaw', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                    res = apply_joint_effort_proxy('mast_sensor_mount', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
                     
                 if relative_pan_tilt.tilt_direction != 0:
                     
@@ -164,7 +177,7 @@ def main():
                     if relative_pan_tilt.tilt_direction < 0:
                         force *= -1.0
                     
-                    res = apply_joint_effort_proxy('slip_ring_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                    res = apply_joint_effort_proxy('daylight_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
             rate.sleep()
 

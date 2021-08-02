@@ -2,7 +2,7 @@
 <sdf version="1.5">
     <model name="payload">
     <static>false</static>
-
+    
     <joint name="world_base" type="fixed">
         <parent>world</parent>
         <child>base</child>
@@ -37,10 +37,15 @@
         </visual>
     </link>
 
+    <include>
+        <uri>model://extendable_mast/</uri>
+        <pose>0 0 1 0 0 0</pose>
+    </include>
+
     <joint name="base_to_mast" type="prismatic">
 
         <parent>base</parent>
-        <child>mast</child>
+        <child>extendable_mast::em_mast</child>
 
         <axis>
             <xyz>
@@ -52,95 +57,25 @@
             </dynamics>
             <limit>
                 <lower>0.0</lower>
-                <upper>10.0</upper>
+                <upper>2.5</upper>
             </limit>
         </axis>
 
     </joint>
 
-    <link name="mast">
-        <pose>0 0 1.0 0 0 0</pose>
-
-        <collision name="collision">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-        </collision>
-        
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <!-- <uri>model://payload/materials/scripts</uri>
-                    <uri>model://payload/materials/textures</uri>
-                    <name>camo/jungle</name> -->
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-
-        <visual name="visual_mast_bottom">
-            <pose>0 0 -1.0 0 0 0</pose>
-            <geometry>
-                <cylinder>
-                    <radius>0.3</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <!-- <uri>model://payload/materials/scripts</uri>
-                    <uri>model://payload/materials/textures</uri>
-                    <name>camo/jungle</name> -->
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-        
-    </link>
-
-
     <joint name="base_to_mast_cylinder" type="fixed">
-
         <parent>base</parent>
-        <child>mast_cylinder</child>
-
+        <child>extendable_mast::em_mast_cylinder</child>
     </joint>
 
-    <link name="mast_cylinder">
-        <pose>0 0 1.0 0 0 0</pose>
+    <include>
+        <uri>model://sensor_mount/</uri>
+        <pose>0 0 1.95 0 0 0</pose>
+    </include>
 
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.4</radius>
-                    <length>1.2</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-        
-    </link>
-
-    <joint name="mast_slip_ring_yaw" type="revolute">
-        <parent>mast</parent>
-        <child>slip_ring_yaw</child>
-        <!-- <type>continuous</type> -->
+    <joint name="mast_sensor_mount" type="revolute">
+        <parent>extendable_mast::em_mast</parent>
+        <child>sensor_mount::sensor_mount_base</child>
         <axis>
             <xyz>
                 0.0 0.0 1.0
@@ -156,121 +91,14 @@
         </axis>
     </joint>
 
+    <include>
+        <uri>model://camera_with_lrf/</uri>
+        <pose>0.55 0 2.25 1.5707 0 0</pose>
+    </include>
 
-    <link name="slip_ring_yaw">
-
-        <pose>0 0 1.6 0 0 0</pose>
-
-        <collision name="collision">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>0.2</length>
-                </cylinder>
-            </geometry>
-        </collision>
-        
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>0.2</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-    </link>
-
-    <joint name="slip_ring_yaw_tbase" type="fixed">
-        <parent>slip_ring_yaw</parent>
-        <child>tbase</child>
-
-        <axis>
-            <xyz>
-                0.0 0.0 1.0
-            </xyz>
-        </axis>
-    </joint>
-
-    <link name="tbase">
-
-        <pose>0 0 1.95 0 0 0</pose>
-    
-        <collision name="collision">
-            <geometry>
-                <box>
-                  <size>0.1 0.1 0.5</size>
-                </box>                
-            </geometry>
-            <surface>
-                <friction>
-                    <ode>
-                        <mu>0.35</mu>
-                        <mu>0.55</mu>
-                    </ode>
-                </friction>
-            </surface>
-        </collision>
-        
-        <visual name="visual">
-            <geometry>
-                <box>
-                  <size>0.1 0.1 0.5</size>
-                </box>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/DarkGrey</name>
-                </script>
-            </material> 
-        </visual>
-
-        <collision name="collisionhorizontal">
-            <pose>0 0 0.3 0 0 0</pose>
-            <geometry>
-                <box>
-                  <size>1.0 0.1 0.1</size>
-                </box>
-            </geometry>
-            <surface>
-                <friction>
-                    <ode>
-                        <mu>0.35</mu>
-                        <mu>0.55</mu>
-                    </ode>
-                </friction>
-            </surface>
-        </collision>
-        <visual name="visualhorizontal">
-            <pose>0 0 0.3 0 0 0</pose>
-            <geometry>
-                <box>
-                  <size>1.0 0.1 0.1</size>
-                </box>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material> 
-        </visual>
-
-        <intertial>
-            <mass>25</mass>
-        </intertial>
-        
-    </link>
-
-    <joint name="slip_ring_camera_tilt" type="revolute">
-        <parent>tbase</parent>
-        <child>camera</child>
+    <joint name="daylight_camera_tilt" type="revolute">
+        <parent>sensor_mount::sensor_mount_base</parent>
+        <child>camera_with_lrf::cwlrf_camera</child>
         <axis>
             <xyz>
                 1.0 0.0 0.0
@@ -287,106 +115,6 @@
             </dynamics>
         </axis>
     </joint>
-
-
-    <link name="camera">
-        <pose>0.55 0 2.25 1.5707 0 0</pose>
-
-        <collision name="collision">
-            <geometry>
-                <cylinder>
-                    <radius>0.05</radius>
-                    <length>0.25</length>
-                </cylinder>
-            </geometry>
-            <surface>
-                <friction>
-                <ode>
-                    <mu>0.35</mu>
-                    <mu>0.55</mu>
-                </ode>
-                </friction>
-            </surface>
-        </collision>
-
-        <intertial>
-            <mass>5</mass>
-        </intertial>
-
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.05</radius>
-                    <length>0.25</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/ZincYellow</name>
-                </script>
-            </material> 
-        </visual>
-
-        <visual name="visual-lrf">
-            <pose>0.075 0 0 0 0 0</pose>
-            <geometry>
-                <box>
-                    <size>0.06 0.06 0.20</size>
-                </box>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Silver</name>
-                </script>
-            </material> 
-        </visual>
-
-        <sensor type="camera" name="eo_cam">
-            <update_rate>10.0</update_rate>
-            <pose>0 0 -0.1 0 1.5707 0</pose>
-            <visualize>true</visualize>
-
-            <camera name="head">
-                <!-- <save enabled="true">
-                    <path>tmp_cam_images</path>
-                </save> -->
-                <horizontal_fov>1.3962634</horizontal_fov>
-                <image>
-                    <width>800</width>
-                    <height>600</height>
-                    <format>R8G8B8</format>
-                </image>
-                <clip>
-                    <near>0.02</near>
-                    <far>300</far>
-                </clip>
-                <noise>
-                    <type>gaussian</type>
-                    <!-- Noise is sampled independently per pixel on each frame.
-                        That pixel's noise value is added to each of its color
-                        channels, which at that point lie in the range [0,1]. -->
-                    <mean>0.0</mean>
-                    <stddev>0.007</stddev>
-                </noise>
-            </camera>
-            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-                <alwaysOn>true</alwaysOn>
-                <updateRate>0.0</updateRate>
-                <cameraName>payload/eo_cam</cameraName>
-                <imageTopicName>image_raw</imageTopicName>
-                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-                <!-- <frameName>camera_link</frameName> -->
-                <frameName>map</frameName>
-                <hackBaseline>0.07</hackBaseline>
-                <distortionK1>0.0</distortionK1>
-                <distortionK2>0.0</distortionK2>
-                <distortionK3>0.0</distortionK3>
-                <distortionT1>0.0</distortionT1>
-                <distortionT2>0.0</distortionT2>
-            </plugin>
-        </sensor>
-    </link>
+    
   </model>
 </sdf>
