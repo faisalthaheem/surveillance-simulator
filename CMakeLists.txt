@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+find_package(gazebo REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -129,12 +131,22 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
+
+link_directories(${GAZEBO_LIBRARY_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/surveillance_simulator.cpp
 # )
+
+add_library(em_state_publisher 
+  SHARED 
+  models/extendable_mast/plugins/em_state_publisher.cc
+)
+target_link_libraries(em_state_publisher ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

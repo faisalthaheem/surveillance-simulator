@@ -2,5 +2,10 @@
     "files.associations": {
       "*.sdf": "xml",
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "python.autoComplete.extraPaths": [
+      "/home/wildcard/data/work/mil/user-projects/catkin_ws/devel/lib/python3/dist-packages",
+      "/mnt/3e850ed4-980f-4112-be1c-5ebec928f09c/work/mil/user-projects/catkin_ws/devel/lib/python3/dist-packages",
+      "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
   }

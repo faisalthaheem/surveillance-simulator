@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/wildcard/data/work/mil/user-projects/catkin_ws/devel/include/**",
+        "/mnt/3e850ed4-980f-4112-be1c-5ebec928f09c/work/mil/user-projects/catkin_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

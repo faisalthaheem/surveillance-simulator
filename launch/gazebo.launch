@@ -52,7 +52,7 @@
                 <env name="PAN_TILT_MODE" value="relative" />
         </node>
 
-        <node 
+        <!-- <node 
                 name="model_state_publisher" 
                 pkg="surveillance_simulator" 
                 type="model_state_publisher.py" 
@@ -60,7 +60,7 @@
                 respawn_delay="3"
         >
                 <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
-        </node>
+        </node> -->
 
         <node 
                 name="stanag_and_payload_connector" 

@@ -1,90 +1,97 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
     <model name="extendable_mast">
-    <static>false</static>
+        <static>false</static>
 
-    <!-- <joint name="world_mast" type="fixed">
-        <parent>world</parent>
-        <child>mast</child>
-    </joint> -->
+        <!-- <joint name="world_mast" type="fixed">
+            <parent>world</parent>
+            <child>mast</child>
+        </joint> -->
 
-    <link name="em_mast">
-        <pose>0 0 0.2 0 0 0</pose>
+        <link name="em_mast">
+            <pose>0 0 0.2 0 0 0</pose>
 
-        <!-- mast must have a weight to let PID controller work-->
-        <intertial>
-            <mass>25</mass>
-        </intertial>
+            <!-- mast must have a weight to let PID controller work-->
+            <intertial>
+                <mass>25</mass>
+            </intertial>
 
-        <collision name="collision">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-        </collision>
-        
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.2</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <!-- <uri>model://payload/materials/scripts</uri>
-                    <uri>model://payload/materials/textures</uri>
-                    <name>camo/jungle</name> -->
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
+            <collision name="collision">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>1.0</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>1.0</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <!-- <uri>model://payload/materials/scripts</uri>
+                        <uri>model://payload/materials/textures</uri>
+                        <name>camo/jungle</name> -->
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+            </visual>
 
-        <visual name="visual_mast_hidden">
-            <pose>0 0 -1.0 0 0 0</pose>
-            <geometry>
-                <cylinder>
-                    <radius>0.3</radius>
-                    <length>1.0</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <!-- <uri>model://payload/materials/scripts</uri>
-                    <uri>model://payload/materials/textures</uri>
-                    <name>camo/jungle</name> -->
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-        
-    </link>
+            <visual name="visual_mast_hidden">
+                <pose>0 0 -1.0 0 0 0</pose>
+                <geometry>
+                    <cylinder>
+                        <radius>0.3</radius>
+                        <length>1.0</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <!-- <uri>model://payload/materials/scripts</uri>
+                        <uri>model://payload/materials/textures</uri>
+                        <name>camo/jungle</name> -->
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+            </visual>
+            
+        </link>
 
 
-    <!-- The outer shell of the mast cylinder, it is kept as a separate fixed link so as not to move when mast is extended-->
-    <link name="em_mast_cylinder">
-        <!-- <pose>0 0 1.0 0 0 0</pose> -->
+        <!-- The outer shell of the mast cylinder, it is kept as a separate fixed link so as not to move when mast is extended-->
+        <link name="em_mast_cylinder">
+            <!-- <pose>0 0 1.0 0 0 0</pose> -->
 
-        <visual name="visual">
-            <geometry>
-                <cylinder>
-                    <radius>0.4</radius>
-                    <length>1.2</length>
-                </cylinder>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Grey</name>
-                </script>
-            </material>
-        </visual>
-        
-    </link>
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>1.2</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+            </visual>
+            
+        </link>
 
-  </model>
+        <plugin name="em_state_publisher" filename="libem_state_publisher.so">
+            <topic_name>mast_status</topic_name>
+            <link_name_mast>extendable_mast::em_mast</link_name_mast>
+            <publish_rate>4</publish_rate>
+            <min_height>1.2</min_height>
+            <max_height>3.0</max_height>
+        </plugin>
+    </model>
 </sdf>

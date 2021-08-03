@@ -40,7 +40,7 @@ def main():
         #http://docs.ros.org/en/diamondback/api/gazebo/html/srv/GetLinkState.html
         while not rospy.is_shutdown():
             
-            mast_state = get_link_state_proxy("pl1::mast", "")
+            mast_state = get_link_state_proxy("pl1::extendable_mast::em_mast", "")
 
             mastStatus = MastStatus()
             mastStatus.min_height = MAST_MIN

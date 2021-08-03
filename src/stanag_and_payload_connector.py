@@ -186,7 +186,7 @@ async def main():
         to_topic_mast_command = rospy.Publisher('mast_command', MastCommand, queue_size=10)
 
         #subscribe to statuses
-        rospy.Subscriber("mast_status", MastStatus, mast_status_callback)
+        rospy.Subscriber("pl1/mast_status", MastStatus, mast_status_callback)
 
         rospy.sleep(1.0) #establish connection
 
