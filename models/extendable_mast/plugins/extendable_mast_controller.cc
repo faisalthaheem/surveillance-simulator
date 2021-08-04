@@ -126,7 +126,7 @@ namespace gazebo
 
             this->joint_mast = available_joints[joint_name_mast];
 
-            this->pid = common::PID(20.0, 50.0, 10.0);
+            this->pid = common::PID(45.0, 50.0, 10.0);
 
             this->model->GetJointController()->SetPositionPID(
                 this->joint_mast->GetScopedName(), this->pid);
@@ -174,6 +174,8 @@ namespace gazebo
 
                 }
             }
+
+            // ROS_INFO("TARGET_HEIGHT [%f]", this->target_height);
 
             this->model->GetJointController()->SetPositionTarget(
                 this->joint_mast->GetScopedName(), this->target_height);

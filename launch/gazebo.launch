@@ -40,7 +40,7 @@
         </node>
 
         <!-- http://wiki.ros.org/roslaunch/XML/node -->
-        <node 
+        <!-- <node 
                 name="payload_controller" 
                 pkg="surveillance_simulator" 
                 type="payload_controller.py" 
@@ -48,9 +48,8 @@
                 respawn_delay="3"
         >
                 <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
-                <!-- absolute = Message200 - relative = Message20000 -->
                 <env name="PAN_TILT_MODE" value="relative" />
-        </node>
+        </node> -->
 
         <!-- <node 
                 name="model_state_publisher" 

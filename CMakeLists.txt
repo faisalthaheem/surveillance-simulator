@@ -148,6 +148,12 @@ add_library(extendable_mast_controller
 )
 target_link_libraries(extendable_mast_controller ${GAZEBO_LIBRARIES})
 
+add_library(sensor_mount_controller 
+  SHARED 
+  models/sensor_mount/plugins/sensor_mount_controller.cc
+)
+target_link_libraries(sensor_mount_controller ${GAZEBO_LIBRARIES})
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure

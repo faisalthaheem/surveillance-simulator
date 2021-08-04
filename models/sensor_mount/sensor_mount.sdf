@@ -3,7 +3,29 @@
     <model name="sensor_mount">
     <static>false</static>
     
+    <!-- phantom link - this is what is linked to when including as fixed-->
     <link name="sensor_mount_base">
+    </link>
+
+    <joint name="sensor_mount_pan" type="revolute">
+        <parent>sensor_mount_base</parent>
+        <child>sensor_mount_link</child>
+        <axis>
+            <xyz>
+                0.0 0.0 1.0
+            </xyz>
+            <dynamics>
+                <damping>0.05</damping>
+                <friction>1.05</friction>
+            </dynamics>
+            <limit>
+                <!-- 15 rad/s -->
+                <velocity>0.261799</velocity>
+            </limit>
+        </axis>
+    </joint>
+
+    <link name="sensor_mount_link">
     
         <collision name="collision">
             <geometry>
@@ -71,6 +93,66 @@
         </intertial>
         
     </link>
+
+    <joint name="sensor_mount_eo_1_tilt" type="revolute">
+        <parent>sensor_mount_link</parent>
+        <child>sensor_mount_eo_1_link</child>
+        <axis>
+            <xyz>
+                1.0 0.0 0.0
+            </xyz>
+            <limit>
+                <!-- 15 rad/s -->
+                <velocity>0.261799</velocity>
+                <lower>-1.57</lower>
+                <upper>1.57</upper>
+            </limit>
+            <dynamics>
+                <damping>0.05</damping>
+                <friction>1.05</friction>
+            </dynamics>
+        </axis>
+    </joint>
+
+    <!-- phantom link to which payload is attached-->
+    <link name="sensor_mount_eo_1_link">
+        <pose>1.1 0 0.3 0 0 0</pose>
+    </link>
+
+    <plugin name="sensor_mount_controller" filename="libsensor_mount_controller.so">
+        <topic_name_sub_ptz_targets>
+            ptz_targets
+        </topic_name_sub_ptz_targets>
+        
+        <topic_name_sub_relative_ptz>
+            relative_pan_tilt
+        </topic_name_sub_relative_ptz>
+        
+        <topic_name_pub_status>
+            sensor_mount_status
+        </topic_name_pub_status>
+
+        <link_name_pan>
+            sensor_mount::sensor_mount_base
+        </link_name_pan>
+
+        <joint_name_pan>
+            sensor_mount_pan
+        </joint_name_pan>
+
+        <link_name_tilt>
+            sensor_mount_eo_1_link
+        </link_name_tilt>
+
+        <joint_name_tilt>
+            sensor_mount_eo_1_tilt
+        </joint_name_tilt>
+        
+        <publish_rate>4</publish_rate>
+        <pan_rate>0.0174533</pan_rate>
+        <tilt_rate>0.0174533</tilt_rate>
+
+    </plugin>
 
   </model>
 </sdf>

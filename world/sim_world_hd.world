@@ -21,7 +21,7 @@
     </include>
 
 	<include>
-		<uri>model://payload</uri>
+		<uri>model://surv_payload</uri>
 		<name>pl1</name>
 		<pose>-5.0 0 0.0 0 0 0</pose>
 	</include>	

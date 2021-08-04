@@ -1,11 +1,26 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
-    <model name="camera_with_lrf">
+    <model name="eo_daylight_cam">
     <static>false</static>
-    
 
-    <link name="cwlrf_camera">
-        <!-- <pose>0.55 0 2.25 1.5707 0 0</pose> -->
+    <link name="eodlcam_phantom_base">
+    </link>    
+
+    <joint name="eodlcam_phantom_base_to_eodlcam_camera" type="fixed">
+        <parent>eodlcam_phantom_base</parent>
+        <child>eodlcam_camera</child>
+    </joint>
+
+    <joint name="eodlcam_phantom_base_to_eodlcam_phantom_aux_mount" type="fixed">
+        <parent>eodlcam_phantom_base</parent>
+        <child>eodlcam_phantom_aux_mount</child>
+    </joint>
+
+    <link name="eodlcam_phantom_aux_mount">
+        <pose>0.075 0 0 0 0 0</pose>
+    </link>
+
+    <link name="eodlcam_camera">
 
         <collision name="collision">
             <geometry>
@@ -39,21 +54,6 @@
                 <script>
                     <uri>file://media/materials/scripts/gazebo.material</uri>
                     <name>Gazebo/ZincYellow</name>
-                </script>
-            </material> 
-        </visual>
-
-        <visual name="visual-lrf">
-            <pose>0.075 0 0 0 0 0</pose>
-            <geometry>
-                <box>
-                    <size>0.06 0.06 0.20</size>
-                </box>
-            </geometry>
-            <material>
-                <script>
-                    <uri>file://media/materials/scripts/gazebo.material</uri>
-                    <name>Gazebo/Silver</name>
                 </script>
             </material> 
         </visual>

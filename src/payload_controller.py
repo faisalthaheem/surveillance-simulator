@@ -120,7 +120,7 @@ def main():
                     if relative_pan_tilt.pan_direction > 0:
                         force *= -1.0
                     
-                    res = apply_joint_effort_proxy('mast_sensor_mount', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                    res = apply_joint_effort_proxy('pl1::sensor_mount::sensor_mount_pan', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
                     
                 if relative_pan_tilt.tilt_direction != 0:
                     
@@ -128,7 +128,7 @@ def main():
                     if relative_pan_tilt.tilt_direction < 0:
                         force *= -1.0
                     
-                    res = apply_joint_effort_proxy('daylight_camera_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
+                    res = apply_joint_effort_proxy('pl1::sensor_mount::sensor_mount_eo_1_tilt', force, rospy.Time(0.0), rospy.Duration.from_sec(0.1))
 
             rate.sleep()
 

@@ -3,10 +3,30 @@
     <model name="extendable_mast">
         <static>false</static>
 
-        <!-- <joint name="world_mast" type="fixed">
-            <parent>world</parent>
-            <child>mast</child>
-        </joint> -->
+        <link name="em_base_phantom">
+            <pose>0 0 0 0 0 0</pose>
+        </link>
+
+        <joint name="mast_lift" type="prismatic">
+
+            <parent>em_base_phantom</parent>
+            <child>em_mast</child>
+
+            <axis>
+                <xyz>
+                    0.0 0.0 1.0
+                </xyz>
+                <dynamics>
+                    <damping>0.05</damping>
+                    <friction>0.05</friction>
+                </dynamics>
+                <limit>
+                    <lower>0.0</lower>
+                    <upper>2.5</upper>
+                </limit>
+            </axis>
+
+        </joint>
 
         <link name="em_mast">
             <pose>0 0 0.2 0 0 0</pose>
@@ -64,6 +84,11 @@
             
         </link>
 
+        <joint name="base_to_mast_cylinder" type="fixed">
+            <parent>em_base_phantom</parent>
+            <child>em_mast_cylinder</child>
+        </joint>
+
 
         <!-- The outer shell of the mast cylinder, it is kept as a separate fixed link so as not to move when mast is extended-->
         <link name="em_mast_cylinder">
@@ -96,11 +121,11 @@
             </topic_name_pub_status>
             
             <link_name_mast>
-                extendable_mast::em_mast
+                em_mast
             </link_name_mast>
 
             <joint_name_mast>
-                base_to_mast
+                mast_lift
             </joint_name_mast>
             
             <publish_rate>4</publish_rate>

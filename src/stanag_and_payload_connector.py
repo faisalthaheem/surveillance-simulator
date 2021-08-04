@@ -181,8 +181,8 @@ async def main():
         rospy.init_node('stanag_and_payload_connector')
 
         logger.info("Creating publishers and subscribers")
-        to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
-        to_topic_relative_pt = rospy.Publisher('relative_pan_tilt', RelativePanTilt, queue_size=10)
+        to_topic_ptz = rospy.Publisher('/pl1/ptz_targets', Ptz, queue_size=10)
+        to_topic_relative_pt = rospy.Publisher('/pl1/relative_pan_tilt', RelativePanTilt, queue_size=10)
         to_topic_mast_command = rospy.Publisher('/pl1/mast_command', MastCommand, queue_size=10)
 
         #subscribe to statuses
