@@ -92,7 +92,6 @@ namespace gazebo
             {
                 return;
             }
-            
 
             //Init ros related stuff
             if(!ros::isInitialized())
@@ -153,9 +152,7 @@ namespace gazebo
     public:
         void OnUpdate()
         {
-            // Apply a small linear velocity to the model.
-            //this->model->SetLinearVel(ignition::math::Vector3d(.3, 0, 0));
-
+            //https://answers.gazebosim.org//question/18816/how-correctly-move-joints-by-setpositionpid-and-setpositiontarget/
             this->model->GetJointController()->Update();
         }
 
