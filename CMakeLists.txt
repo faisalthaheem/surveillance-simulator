@@ -142,11 +142,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 #   src/${PROJECT_NAME}/surveillance_simulator.cpp
 # )
 
-add_library(em_state_publisher 
+add_library(extendable_mast_controller 
   SHARED 
-  models/extendable_mast/plugins/em_state_publisher.cc
+  models/extendable_mast/plugins/extendable_mast_controller.cc
 )
-target_link_libraries(em_state_publisher ${GAZEBO_LIBRARIES})
+target_link_libraries(extendable_mast_controller ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

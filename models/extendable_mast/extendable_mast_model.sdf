@@ -86,12 +86,27 @@
             
         </link>
 
-        <plugin name="em_state_publisher" filename="libem_state_publisher.so">
-            <topic_name>mast_status</topic_name>
-            <link_name_mast>extendable_mast::em_mast</link_name_mast>
+        <plugin name="extendable_mast_controller" filename="libextendable_mast_controller.so">
+            <topic_name_sub_cmds>
+                mast_command
+            </topic_name_sub_cmds>
+            
+            <topic_name_pub_status>
+                mast_status
+            </topic_name_pub_status>
+            
+            <link_name_mast>
+                extendable_mast::em_mast
+            </link_name_mast>
+
+            <joint_name_mast>
+                base_to_mast
+            </joint_name_mast>
+            
             <publish_rate>4</publish_rate>
             <min_height>1.2</min_height>
             <max_height>3.0</max_height>
+            <step_height>0.02</step_height>
         </plugin>
     </model>
 </sdf>

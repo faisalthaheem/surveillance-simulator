@@ -183,10 +183,10 @@ async def main():
         logger.info("Creating publishers and subscribers")
         to_topic_ptz = rospy.Publisher('ptz_targets', Ptz, queue_size=10)
         to_topic_relative_pt = rospy.Publisher('relative_pan_tilt', RelativePanTilt, queue_size=10)
-        to_topic_mast_command = rospy.Publisher('mast_command', MastCommand, queue_size=10)
+        to_topic_mast_command = rospy.Publisher('/pl1/mast_command', MastCommand, queue_size=10)
 
         #subscribe to statuses
-        rospy.Subscriber("pl1/mast_status", MastStatus, mast_status_callback)
+        rospy.Subscriber("/pl1/mast_status", MastStatus, mast_status_callback)
 
         rospy.sleep(1.0) #establish connection
 

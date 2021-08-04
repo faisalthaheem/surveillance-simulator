@@ -7,7 +7,6 @@ import rospy
 import math
 import copy
 import tf.transformations
-from simple_pid import PID
 
 
 #for constants
@@ -28,18 +27,6 @@ current_centerline_elevation_angle = 0.0
 
 relative_pan_tilt = RelativePanTilt()
 
-#mast related
-#Todo, get these limits from joints
-"""Comes from model"""
-MAST_MIN = 1
-"""See model for limits"""
-MAST_MAX = 3
-MAST_STEP = 0.02
-
-mast_height_target = 1.2
-pid_mast = PID(20.0, 50.0, 10.0, setpoint=mast_height_target)
-
-
 def set_ptz_callback(ptz):
 
     global target_centreline_azimuth_angle
@@ -54,29 +41,9 @@ def set_relative_pan_tilt_callback(msg):
 
     relative_pan_tilt = copy.copy(msg)
 
-def mast_command_callback(msg):
-    global mast_height_target
-
-    if msg.command_type == Message20030.CMD_TYPE_MOVE_ABSOLUTE:
-        mast_height_target = msg.absolute_height
-    else:
-        if msg.command_type == Message20030.CMD_TYPE_MOVE_UP and mast_height_target + MAST_STEP < MAST_MAX:
-            mast_height_target += MAST_STEP
-        elif msg.command_type == Message20030.CMD_TYPE_MOVE_DOWN and mast_height_target - MAST_STEP > MAST_MIN:
-            mast_height_target -= MAST_STEP
-
-    pid_mast.setpoint = mast_height_target
 
 def getLinkState(link_name):
     return get_link_state_proxy(link_name, "")
-
-"""Based on the pose, certain config parameters need to be adjusted to allow model to keep functioning"""
-def setInitialConfiguration():
-    global mast_height_target
-
-    mast_state = getLinkState("pl1::extendable_mast::mast")
-    mast_height_target  = mast_state.link_state.pose.position.z
-    pid_mast.setpoint = mast_height_target
 
 def main():
     try:
@@ -102,28 +69,12 @@ def main():
         rospy.wait_for_service('/gazebo/apply_joint_effort')
         apply_joint_effort_proxy = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
 
-        #setInitialConfiguration()
-
         rospy.Subscriber("ptz_targets", Ptz, set_ptz_callback)
         rospy.Subscriber("relative_pan_tilt", RelativePanTilt, set_relative_pan_tilt_callback)
-        rospy.Subscriber("mast_command", MastCommand, mast_command_callback)
 
         #http://docs.ros.org/en/diamondback/api/gazebo/html/srv/GetLinkState.html
         while not rospy.is_shutdown():
             
-            mast_state = getLinkState("pl1::extendable_mast::em_mast")
-            observation = mast_state.link_state.pose.position.z
-
-            print("Mast state [{}], target [{}]".format(observation, mast_height_target))
-            force = pid_mast(observation)
-
-            res = apply_joint_effort_proxy(
-                'base_to_mast', 
-                force, 
-                rospy.Time(0.0), 
-                rospy.Duration.from_sec(0.1)
-            )
-
 
             if isRelativePanTiltMode is False:
                 yaw_slip_ring_state = get_link_state_proxy("pl1::mast_sensor_mount", "")
