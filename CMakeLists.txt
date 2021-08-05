@@ -57,6 +57,8 @@ add_message_files(
   RelativePanTilt.msg
   MastCommand.msg
   MastStatus.msg
+  LrfCommand.msg
+  LrfStatus.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -153,6 +155,12 @@ add_library(sensor_mount_controller
   models/sensor_mount/plugins/sensor_mount_controller.cc
 )
 target_link_libraries(sensor_mount_controller ${GAZEBO_LIBRARIES})
+
+add_library(lrf_controller 
+  SHARED 
+  models/lrf/plugins/lrf_controller.cc
+)
+target_link_libraries(lrf_controller ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

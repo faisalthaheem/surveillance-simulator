@@ -42,5 +42,83 @@
 
     </link>
 
+    <joint name="lrf_phantom_base_to_sensor" type="fixed">
+        <parent>lrf_phantom_base</parent>
+        <child>lrf_sensor</child>
+    </joint>
+
+    <link name="lrf_sensor">
+        <pose>0 0 0 0 0 0</pose>
+        <!-- Add a ray sensor, and give it a name -->
+        <sensor type="ray" name="sensor">
+
+            <!-- Position the ray sensor based on the specification. Also rotate
+                it by 90 degrees around the X-axis so that the <horizontal> rays
+                become vertical -->
+            <pose>0.0 0.1 0.0 0 0 1.5707</pose>
+
+            <!-- Enable visualization to see the rays in the GUI -->
+            <visualize>true</visualize>
+
+            <!-- Set the update rate of the sensor -->
+            <update_rate>1</update_rate>
+
+            <ray>
+
+                <!-- The scan element contains the horizontal and vertical beams.
+                    We are leaving out the vertical beams for this tutorial. -->
+                <scan>
+
+                    <!-- The horizontal beams -->
+                    <horizontal>
+                        <!-- The velodyne has 32 beams(samples) -->
+                        <samples>1</samples>
+
+                        <!-- Resolution is multiplied by samples to determine number of
+                            simulated beams vs interpolated beams. See:
+                            http://sdformat.org/spec?ver=1.6&elem=sensor#horizontal_resolution
+                            -->
+                        <resolution>1</resolution>
+
+                        <!-- Minimum angle in radians -->
+                        <min_angle>0</min_angle>
+
+                        <!-- Maximum angle in radians -->
+                        <max_angle>0</max_angle>
+                    </horizontal>
+                </scan>
+
+                <!-- Range defines characteristics of an individual beam -->
+                <range>
+
+                    <!-- Minimum distance of the beam -->
+                    <min>0.05</min>
+
+                    <!-- Maximum distance of the beam -->
+                    <max>150</max>
+
+                    <!-- Linear resolution of the beam -->
+                    <resolution>0.02</resolution>
+                </range>
+            </ray>
+        </sensor>
+    </link>
+
+    <plugin name="lrf_controller" filename="liblrf_controller.so">
+        <topic_name_pub_status>
+            lrf_status
+        </topic_name_pub_status>
+        
+        <topic_name_sub_commands>
+            lrf_command
+        </topic_name_sub_commands>
+        
+        <topic_name_ray_sensor>
+            /gazebo/default/pl1/lrf/lrf_sensor/sensor/scan
+        </topic_name_ray_sensor>
+
+        <publish_rate>4</publish_rate>
+
+    </plugin>
   </model>
 </sdf>

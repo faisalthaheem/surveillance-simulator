@@ -1,0 +1,3 @@
+uint8 status
+uint8 lrf_pulse
+float32 range_reported
