@@ -2,6 +2,8 @@
 
 import os
 import logging
+
+from stanag4586edav1.message302 import Message302
 import rospy
 import copy
 import sys, traceback
@@ -11,12 +13,14 @@ import json
 from stanag4586vsm.stanag_server import *
 from stanag4586edav1.message_wrapper import *
 from stanag4586edav1.message200 import *
+from stanag4586edav1.message302 import *
 from stanag4586edav1.message20010 import *
 from stanag4586edav1.message20020 import *
 from stanag4586edav1.message20040 import *
 from stanag4586edav1.message21 import *
+from rospy.topics import Message
 
-from surveillance_simulator.msg import Ptz, RelativePanTilt, MastCommand, MastStatus
+from surveillance_simulator.msg import Ptz, RelativePanTilt, MastCommand, MastStatus, LrfCommand, LrfStatus
 
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -28,6 +32,7 @@ logger.setLevel(logging.DEBUG)
 to_topic_ptz = None
 to_topic_relative_pt = None
 to_topic_mast_command = None
+to_topic_lrf_commands = None
 
 #our local data storage
 ptz_cache = Ptz()
@@ -41,6 +46,56 @@ server = None
 #config variables read through env
 EXTERNAL_RTSP_IP_ADDRESS = os.environ.get("EXTERNAL_RTSP_IP_ADDRESS","localhost")
 
+def lrf_status_callback(msg):
+
+    if server is None: return
+    
+    station = server.get_entity("lrf")
+    if station is None:
+        logger.debug("Lrf station is none. Cannot get details.") 
+        return
+
+    monitoring_cucs = station.getMonitoringCucs()
+
+    msg302 = Message302(Message302.MSGNULL)
+    msg302.time_stamp = 0x00
+    msg302.vehicle_id = station.getVehicleId()
+    msg302.cucs_id = 0xA0
+    msg302.vsm_id = 0x00
+    msg302.station_number = station.getStationId()
+    msg302.addressed_sensor = Message302_addressed_sensor.EO
+    msg302.system_operating_mode_state = Message302_system_operating_mode_state.ACTIVE
+    msg302.eo_sensor_mode_status = Message302_eo_sensor_mode_status.COLOR_MODE
+    msg302.ir_polarity_status = Message302_ir_polarity_status.WHITE_HOT
+    msg302.image_output_state = Message302_image_output_state.BOTH
+    msg302.actual_centerline_elevation_angle = 1.0
+    msg302.actual_vertical_field_of_view = 1.0
+    msg302.actual_centerline_azimuth_angle = 1.0
+    msg302.actual_horizontal_field_of_view = 1.0
+    msg302.actual_sensor_rotation_angle = 1.0
+    msg302.image_position = 1
+    msg302.latitude = 33.0
+    msg302.longitude = 33.0
+    msg302.altitude = 1.0
+    msg302.pointing_mode_state = Message302_pointing_mode_state.ANGLE_RELATIVE_TO_UA
+    msg302.preplan_mode = Message302_preplan_mode.OPERATE_IN_PREPLAN_MODE
+    msg302.reported_range = msg.range_reported
+    msg302.fire_laser_pointer_status = Message302_fire_laser_pointer_status.ON_SAFED
+    msg302.fire_laser_rangefinder_status = msg.status
+    msg302.selected_laser_rangefinder_first_last_pulse = Message302_selected_laser_rangefinder_first_last_pulse.FIRST
+    msg302.laser_designator_code = 0x01
+    msg302.laser_designator_status = Message302_laser_designator_status.ON
+
+    for cucsid in monitoring_cucs:
+
+        msg302.cucs_id = cucsid
+    
+        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
+        wrapped_reply = wrapped_reply.wrap_message(1, 302, msg302, False)
+
+        current_loop.call_soon(server.tx_data, wrapped_reply)
+    
+    logger.debug("Exit publishing lrf status") 
 
 def mast_status_callback(msg):
 
@@ -48,7 +103,7 @@ def mast_status_callback(msg):
     
     station = server.get_entity("mast")
     if station is None:
-        logger.debug("Station is none. Cannot get mast details.") 
+        logger.debug("mast station is none. Cannot get mast details.") 
         return
 
     monitoring_cucs = station.getMonitoringCucs()
@@ -136,6 +191,16 @@ async def process_message(wrapper, msg):
         ))
         to_topic_mast_command.publish(mastCmd)
 
+    elif wrapper.message_type == 201:
+
+        cmd = LrfCommand()
+        cmd.command = msg.fire_laser_rangefinder
+        
+        logger.debug("On MSG_201 command_type [{}]".format(
+            cmd.command
+        ))
+        to_topic_lrf_commands.publish(cmd)
+
 
 def handle_message(wrapper, msg):
     logger.debug("Got message in stanag_to_ros_iface [{}]".format(wrapper.message_type))
@@ -154,6 +219,8 @@ async def start_stanag_iface():
 
     #set our callback to start getting requests unprocessed by default implementation
     server.get_entity("eo").set_callback_for_unhandled_messages(handle_message)
+    server.get_entity("mast").set_callback_for_unhandled_messages(handle_message)
+    server.get_entity("lrf").set_callback_for_unhandled_messages(handle_message)
 
     logger.info("STANAG iface active")
 
@@ -170,6 +237,7 @@ async def main():
     global to_topic_ptz
     global to_topic_relative_pt
     global to_topic_mast_command
+    global to_topic_lrf_commands
     global current_loop
 
     # save for callbacks
@@ -184,9 +252,11 @@ async def main():
         to_topic_ptz = rospy.Publisher('/pl1/ptz_targets', Ptz, queue_size=10)
         to_topic_relative_pt = rospy.Publisher('/pl1/relative_pan_tilt', RelativePanTilt, queue_size=10)
         to_topic_mast_command = rospy.Publisher('/pl1/mast_command', MastCommand, queue_size=10)
+        to_topic_lrf_commands = rospy.Publisher('/pl1/lrf_command', LrfCommand, queue_size=10)
 
         #subscribe to statuses
         rospy.Subscriber("/pl1/mast_status", MastStatus, mast_status_callback)
+        rospy.Subscriber("/pl1/lrf_status", LrfStatus, lrf_status_callback)
 
         rospy.sleep(1.0) #establish connection
 

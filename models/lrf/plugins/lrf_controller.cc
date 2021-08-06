@@ -21,7 +21,7 @@
 #include <ros/ros.h>
 
 #include <string>
-#include <sstream>
+#include <atomic>
 
 using namespace std;
 
@@ -82,8 +82,8 @@ namespace gazebo
             }
 
             //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Writing_the_Subscriber_Node
-            // pub_state = node.advertise<surveillance_simulator::MastStatus>(topic_name_pub_status, 10);
-            //publish_timer = node.createTimer(publish_rate, &ExtendableMastController::advertStatus, this);
+            pub_state = node.advertise<surveillance_simulator::LrfStatus>(topic_name_pub_status, 10);
+            publish_timer = node.createTimer(publish_rate, &LrfController::advertStatus, this);
 
             sub_lrf_cmds = node.subscribe(topic_name_sub_commands, 10, &LrfController::onLrfCmd, this);
 
@@ -98,8 +98,8 @@ namespace gazebo
 
             // Listen to the update event. This event is broadcast every
             // simulation iteration.
-            this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-                std::bind(&LrfController::OnUpdate, this));
+            // this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+            //     std::bind(&LrfController::OnUpdate, this));
 
         }
 
@@ -114,31 +114,81 @@ namespace gazebo
         // void onRaySensorMsg(const std::string& msg)
         void onRaySensorMsg(StampedLaserScanPtr& msg)
         {
-            double dist = 0.0;
             if(msg->scan().ranges_size() > 0)
             {
-                dist = msg->scan().ranges(0);
+                this->last_observed_range = msg->scan().ranges(0);
+            // ROS_INFO("Got laser scan [%f]", dist);
             }
-            ROS_INFO("Got laser scan [%f]", dist);
         }
 
         void onLrfCmd(const surveillance_simulator::LrfCommand& msg)
         {
-            ROS_INFO("Got LRF command [%d]", msg.command);
+            //ROS_DEBUG("Got LRF command [%d]", msg.command);
+            this->sensor_state = msg.command;
             
         }
 
         void advertStatus(const ros::TimerEvent& e)
         {
-             
-            // surveillance_simulator::MastStatus status;
-            // status.min_height = this->min_height;
-            // status.max_height = this->max_height;
-            // status.current_height = getMastHeight();
-            // status.error_code = 0;
+            makeAndPublishStatus();
 
-            // pub_state.publish(status);
+            if(isFiring())
+            {
+                this->sensor_state = 51; //armed
+            }
             
+        }
+
+        void makeAndPublishStatus()
+        {
+            /**
+             * Complies with STANAG definition for LRF states.
+             *  0 = Off
+                1 = On - Safed
+                2 = Armed
+                3 = Recharging (Armed)
+                4 = Firing
+                5 = Masked
+                6 - 15 = Reserved
+                16 - 255 = Payload-specific
+            **/
+
+           surveillance_simulator::LrfStatus status;
+           status.lrf_pulse = 1;
+
+            switch(this->sensor_state)
+            {
+                case 0: //off
+                    status.status = 0;
+                    break;
+                case 51: //arm
+                    status.status = 2;
+                    break;
+                case 68: //on-safe
+                    status.status = 1;
+                    break;
+                case 85: //firing
+                case 238: //firing
+                    status.status = 4;
+                    break;
+                default:
+                    status.status = 0; //off
+            }
+
+           if(isFiring())
+           {
+               status.range_reported = this->last_observed_range;
+           }else{
+               status.range_reported = 0.0; //INVALID
+           }
+
+           pub_state.publish(status);
+
+        }
+
+        inline bool isFiring()
+        {
+            return this->sensor_state == 85 || this->sensor_state == 238;
         }
 
 
@@ -148,9 +198,6 @@ namespace gazebo
         {
             if(!this->sdf->HasElement(element_name))
             {
-                // ostringstream errMsg;
-                // errMsg << "Missing " << element_name << " in plugin sdf.";
-                // ROS_FATAL_STREAM(errMsg.str());
 
                 ROS_FATAL("Missing [%s] element in sdf.", element_name.c_str());
 
@@ -175,6 +222,18 @@ namespace gazebo
         //For reading data from gazebo topics
         gazebo::transport::NodePtr gznode;
         gazebo::transport::SubscriberPtr sub_ray_sensor;
+
+        /**
+         * Complies with STANAG definition for LRF states.
+         *  0 = Off
+            51 = Arm
+            68 = On – Safe
+            85 = Fire One Pulse
+            238 = Fire Multiple Pulses
+        **/
+        ushort sensor_state = 0;
+
+        std::atomic<double> last_observed_range = 0.0;
 
         // Pointer to the update event connection
     private:
