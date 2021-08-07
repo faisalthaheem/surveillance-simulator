@@ -4,13 +4,48 @@
         <static>false</static>
 
         <link name="em_base_phantom">
-            <pose>0 0 0 0 0 0</pose>
+            <pose>0 0 0   0 0 0</pose>
         </link>
 
-        <joint name="mast_lift" type="prismatic">
 
+        <joint name="em_base_phantom_to_fixed_base" type="fixed">
+            <!-- <pose>0 0 0   0 0 0</pose> -->
             <parent>em_base_phantom</parent>
-            <child>em_mast</child>
+            <child>em_fixed_base</child>
+        </joint>
+
+        <link name="em_fixed_base">
+            <!-- <pose>0 0 0    0 0 0</pose> -->
+
+            <!-- <collision name="collision">
+                <geometry>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
+                </geometry>
+            </collision> -->
+            
+            <visual name="visual">
+                <!-- <pose>0 0 0.5 0 0 0</pose> -->
+                <geometry>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+            </visual>
+            
+        </link>
+
+        <joint name="em_seg1_lift" type="prismatic">
+            <!-- <pose relative_to="em_fixed_base">0 0 0   0 0 0</pose> -->
+            <parent>em_fixed_base</parent>
+            <child>em_seg_1</child>
 
             <axis>
                 <xyz>
@@ -22,60 +57,37 @@
                 </dynamics>
                 <limit>
                     <lower>0.0</lower>
-                    <upper>2.5</upper>
+                    <upper>1.0</upper>
                 </limit>
             </axis>
 
         </joint>
 
-        <link name="em_mast">
-            <pose>0 0 0.2 0 0 0</pose>
+        <link name="em_seg_1">
+            <!-- <pose relative_to="em_fixed_base">0 0 0    0 0 0</pose> -->
 
             <!-- mast must have a weight to let PID controller work-->
             <intertial>
-                <mass>25</mass>
+                <mass>5</mass>
             </intertial>
 
-            <collision name="collision">
+            <!-- <collision name="collision">
                 <geometry>
-                    <cylinder>
-                        <radius>0.2</radius>
-                        <length>1.0</length>
-                    </cylinder>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
                 </geometry>
-            </collision>
+            </collision> -->
             
             <visual name="visual">
+                <!-- <pose>0 0 0   0 0 0</pose> -->
                 <geometry>
-                    <cylinder>
-                        <radius>0.2</radius>
-                        <length>1.0</length>
-                    </cylinder>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
                 </geometry>
                 <material>
                     <script>
-                        <!-- <uri>model://payload/materials/scripts</uri>
-                        <uri>model://payload/materials/textures</uri>
-                        <name>camo/jungle</name> -->
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Grey</name>
-                    </script>
-                </material>
-            </visual>
-
-            <visual name="visual_mast_hidden">
-                <pose>0 0 -1.0 0 0 0</pose>
-                <geometry>
-                    <cylinder>
-                        <radius>0.3</radius>
-                        <length>1.0</length>
-                    </cylinder>
-                </geometry>
-                <material>
-                    <script>
-                        <!-- <uri>model://payload/materials/scripts</uri>
-                        <uri>model://payload/materials/textures</uri>
-                        <name>camo/jungle</name> -->
                         <uri>file://media/materials/scripts/gazebo.material</uri>
                         <name>Gazebo/Grey</name>
                     </script>
@@ -84,32 +96,86 @@
             
         </link>
 
-        <joint name="base_to_mast_cylinder" type="fixed">
-            <parent>em_base_phantom</parent>
-            <child>em_mast_cylinder</child>
+
+        <joint name="em_seg2_lift" type="prismatic">
+            <!-- <pose relative_to="em_seg_1">0 0 0   0 0 0</pose> -->
+
+            <parent>em_seg_1</parent>
+            <child>em_seg_2</child>
+
+            <axis>
+                <xyz>
+                    0.0 0.0 1.0
+                </xyz>
+                <dynamics>
+                    <damping>0.05</damping>
+                    <friction>0.05</friction>
+                </dynamics>
+                <limit>
+                    <lower>0.0</lower>
+                    <upper>1.0</upper>
+                </limit>
+            </axis>
+
+        </joint>
+
+        <link name="em_seg_2">
+            <!-- <pose relative_to="em_seg_1">0 0 0    0 0 0</pose> -->
+
+            <intertial>
+                <mass>5</mass>
+            </intertial>
+
+            <!-- <collision name="collision">
+                <geometry>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
+                </geometry>
+            </collision> -->
+            
+            <visual name="visual">
+                <!-- <pose>0 0 0   0 0 0</pose> -->
+
+                <geometry>
+                    <box>
+                        <size>0.1 0.1 1.0</size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Red</name>
+                    </script>
+                </material>
+            </visual>
+            
+        </link>
+
+        <joint name="em_seg_2_to_em_top_mount_phantom" type="fixed">
+            <!-- <pose relative_to="em_seg_2">0 0 1.0   0 0 0</pose> -->
+            <parent>em_seg_2</parent>
+            <child>em_top_mount_phantom</child>
         </joint>
 
 
-        <!-- The outer shell of the mast cylinder, it is kept as a separate fixed link so as not to move when mast is extended-->
-        <link name="em_mast_cylinder">
-            <!-- <pose>0 0 1.0 0 0 0</pose> -->
+        <link name="em_top_mount_phantom">
+            <pose relative_to="em_seg_2">0 0 0.5   0 0 0</pose>
+            <!-- <pose>0 0 0.5   0 0 0</pose> -->
+
+            <intertial>
+                <mass>50</mass>
+            </intertial>
 
             <visual name="visual">
                 <geometry>
-                    <cylinder>
-                        <radius>0.4</radius>
-                        <length>1.2</length>
-                    </cylinder>
+                    <box>
+                        <size>0.25 0.25 0.02</size>
+                    </box>
                 </geometry>
-                <material>
-                    <script>
-                        <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Grey</name>
-                    </script>
-                </material>
             </visual>
-            
         </link>
+        
 
         <plugin name="extendable_mast_controller" filename="libextendable_mast_controller.so">
             <topic_name_sub_cmds>
@@ -121,17 +187,17 @@
             </topic_name_pub_status>
             
             <link_name_mast>
-                em_mast
+                em_top_mount_phantom
             </link_name_mast>
 
             <joint_name_mast>
-                mast_lift
+                em_seg1_lift
             </joint_name_mast>
             
             <publish_rate>4</publish_rate>
-            <min_height>1.2</min_height>
+            <min_height>1.0</min_height>
             <max_height>3.0</max_height>
             <step_height>0.02</step_height>
         </plugin>
     </model>
-</sdf>
+</sdf>em_seg_2

@@ -9,17 +9,17 @@
     </joint>
 
     <link name="base">        
-        <pose>0 0 0.25 0 0 0</pose>
-
+        <pose>0 0 0   0 0 0</pose>
+<!-- 
         <collision name="collision">
             <geometry>
                 <box>
                   <size>2.0 2.0 0.5</size>
                 </box>
             </geometry>
-        </collision>
+        </collision> -->
         
-        <visual name="visual">
+        <!-- <visual name="visual">
             <geometry>
                 <box>
                   <size>2.0 2.0 0.5</size>
@@ -27,19 +27,16 @@
             </geometry>
             <material>
                 <script>
-                    <!-- <uri>model://payload/materials/scripts</uri>
-                    <uri>model://payload/materials/textures</uri>
-                    <name>base/asphalt</name> -->
                     <uri>file://media/materials/scripts/gazebo.material</uri>
                     <name>Gazebo/DarkGrey</name>
                 </script>
             </material>
-        </visual>
+        </visual> -->
     </link>
 
     <include>
         <uri>model://extendable_mast/</uri>
-        <pose>0 0 1 0 0 0</pose>
+        <pose>0 0 0.5    0 0 0</pose>
     </include>
 
     <joint name="base_to_mast" type="fixed">
@@ -47,13 +44,13 @@
         <child>extendable_mast::em_base_phantom</child>
     </joint>
 
-    <include>
+    <!-- <include>
         <uri>model://sensor_mount/</uri>
-        <pose>0 0 1.95 0 0 0</pose>
+        <pose relative_to="extendable_mast::em_top_mount_phantom">0 0 0   0 0 0</pose>
     </include>
 
     <joint name="mast_to_sensor_mount" type="fixed">
-        <parent>extendable_mast::em_mast</parent>
+        <parent>extendable_mast::em_top_mount_phantom</parent>
         <child>sensor_mount::sensor_mount_base</child>
     </joint>
 
@@ -75,7 +72,7 @@
     <joint name="eo_daylight_cam_to_lrf" type="fixed">
         <parent>eo_daylight_cam::eodlcam_phantom_aux_mount</parent>
         <child>lrf::lrf_lrf</child>
-    </joint>
+    </joint> -->
     
   </model>
 </sdf>

@@ -5,6 +5,7 @@
     
     <!-- phantom link - this is what is linked to when including as fixed-->
     <link name="sensor_mount_base">
+        <pose>0 0 0   0 0 0</pose>
     </link>
 
     <joint name="sensor_mount_pan" type="revolute">
@@ -26,6 +27,8 @@
     </joint>
 
     <link name="sensor_mount_link">
+
+        <pose>0 0 0   0 0 0</pose>
     
         <collision name="collision">
             <geometry>
@@ -44,6 +47,7 @@
         </collision>
         
         <visual name="visual">
+            <pose>0 0 0   0 0 0</pose>
             <geometry>
                 <box>
                   <size>0.1 0.1 0.5</size>

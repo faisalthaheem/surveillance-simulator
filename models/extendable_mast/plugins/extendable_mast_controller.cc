@@ -81,7 +81,6 @@ namespace gazebo
             {
                 return;
             }
-            this->target_height = this->min_height;
 
             if(!readFromSdf("max_height", this->max_height))
             {
@@ -112,6 +111,7 @@ namespace gazebo
             //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/namespacegazebo_1_1physics.html#af7e4c06bce794eef119784b85ce330f5
             //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/classgazebo_1_1physics_1_1JointController.html
             ModelJoints available_joints = model->GetJointController()->GetJoints();
+            printAvailableJoints(available_joints);
             if(0 == available_joints.count(joint_name_mast))
             {
                 ROS_FATAL("Unable to find joint [%s] as specified in sdf.", joint_name_mast.c_str());
@@ -125,15 +125,32 @@ namespace gazebo
             }
 
             this->joint_mast = available_joints[joint_name_mast];
+            if(!this->joint_mast)
+            {
+                ROS_ERROR("Unable to get joint [%s]", joint_name_mast.c_str());
+                return;
+            }
+            this->joint_mast_seg_2 = this->model->GetJoint("pl1::extendable_mast::em_seg2_lift");
+            if(!this->joint_mast_seg_2)
+            {
+                ROS_ERROR("Unable to get joint [em_seg2_lift]");
+                return;
+            }
 
             this->pid = common::PID(45.0, 50.0, 10.0);
+            this->pid_seg_2 = common::PID(45.0, 50.0, 10.0);
 
             this->model->GetJointController()->SetPositionPID(
                 this->joint_mast->GetScopedName(), this->pid);
 
+            this->model->GetJointController()->SetPositionPID(
+                this->joint_mast_seg_2->GetScopedName(), this->pid_seg_2);
+
             //Set initial target
             this->model->GetJointController()->SetPositionTarget(
                 this->joint_mast->GetScopedName(), this->target_height);
+            this->model->GetJointController()->SetPositionTarget(
+                this->joint_mast_seg_2->GetScopedName(), this->target_height);
 
             //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Writing_the_Subscriber_Node
             sub_cmd = node.subscribe(topic_name_sub_cmds, 10, &ExtendableMastController::onCmdReceived, this);
@@ -146,6 +163,16 @@ namespace gazebo
             this->updateConnection = event::Events::ConnectWorldUpdateBegin(
                 std::bind(&ExtendableMastController::OnUpdate, this));
 
+        }
+
+        void printAvailableJoints(ModelJoints &available_joints)
+        {
+            ModelJoints::iterator itr = available_joints.begin();
+            while(itr != available_joints.end())
+            {
+                ROS_INFO("Available joint [%s]", itr->first.c_str());
+                ++itr;
+            }
         }
 
         // Called by the world update start event
@@ -168,7 +195,7 @@ namespace gazebo
                 {
                     this->target_height += this->step_height;
 
-                }else if( (this->target_height - this->step_height) >= this->min_height)
+                }else if( (this->target_height - this->step_height) > 0)
                 {
                     this->target_height -= this->step_height;
 
@@ -177,8 +204,16 @@ namespace gazebo
 
             // ROS_INFO("TARGET_HEIGHT [%f]", this->target_height);
 
-            this->model->GetJointController()->SetPositionTarget(
-                this->joint_mast->GetScopedName(), this->target_height);
+            if(this->joint_mast)
+            {
+                this->model->GetJointController()->SetPositionTarget(
+                    this->joint_mast->GetScopedName(), this->target_height);
+            }
+            if(this->joint_mast_seg_2)
+            {
+                this->model->GetJointController()->SetPositionTarget(
+                    this->joint_mast_seg_2->GetScopedName(), this->target_height);
+            }
         }
 
         void advertStatus(const ros::TimerEvent& e)
@@ -198,8 +233,10 @@ namespace gazebo
         {
             //https://osrf-distributions.s3.amazonaws.com/gazebo/api/dev/classgazebo_1_1physics_1_1Link.html
             //https://osrf-distributions.s3.amazonaws.com/ign-math/api/1.0.0/classignition_1_1math_1_1Pose3.html
-            ignition::math::Pose3d pose = link_mast->WorldPose();
+            ignition::math::Pose3d pose = link_mast->RelativePose();
             ignition::math::Vector3 position = pose.Pos();
+
+            ROS_INFO("Mast relative pose is [%f]", position.Z());
            
             return position.Z();
         }
@@ -229,7 +266,10 @@ namespace gazebo
     private:
         //https://osrf-distributions.s3.amazonaws.com/gazebo/api/dev/classgazebo_1_1physics_1_1Model.html
         physics::ModelPtr model;
+        
         gazebo::physics::JointPtr joint_mast; 
+        gazebo::physics::JointPtr joint_mast_seg_2;
+
         gazebo::physics::LinkPtr link_mast;
 
         sdf::ElementPtr sdf;
@@ -241,6 +281,7 @@ namespace gazebo
 
         //to control the movement of mast
         common::PID pid;
+        common::PID pid_seg_2;
 
         //Minimum/Maximum height of the mast, reported to C2
         float min_height, max_height, step_height, target_height = 0.0f;
