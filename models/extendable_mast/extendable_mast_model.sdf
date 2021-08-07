@@ -9,13 +9,11 @@
 
 
         <joint name="em_base_phantom_to_fixed_base" type="fixed">
-            <!-- <pose>0 0 0   0 0 0</pose> -->
             <parent>em_base_phantom</parent>
             <child>em_fixed_base</child>
         </joint>
 
         <link name="em_fixed_base">
-            <!-- <pose>0 0 0    0 0 0</pose> -->
 
             <!-- <collision name="collision">
                 <geometry>
@@ -26,7 +24,6 @@
             </collision> -->
             
             <visual name="visual">
-                <!-- <pose>0 0 0.5 0 0 0</pose> -->
                 <geometry>
                     <box>
                         <size>0.1 0.1 1.0</size>
@@ -43,7 +40,6 @@
         </link>
 
         <joint name="em_seg1_lift" type="prismatic">
-            <!-- <pose relative_to="em_fixed_base">0 0 0   0 0 0</pose> -->
             <parent>em_fixed_base</parent>
             <child>em_seg_1</child>
 
@@ -64,7 +60,6 @@
         </joint>
 
         <link name="em_seg_1">
-            <!-- <pose relative_to="em_fixed_base">0 0 0    0 0 0</pose> -->
 
             <!-- mast must have a weight to let PID controller work-->
             <intertial>
@@ -80,7 +75,6 @@
             </collision> -->
             
             <visual name="visual">
-                <!-- <pose>0 0 0   0 0 0</pose> -->
                 <geometry>
                     <box>
                         <size>0.1 0.1 1.0</size>
@@ -98,7 +92,6 @@
 
 
         <joint name="em_seg2_lift" type="prismatic">
-            <!-- <pose relative_to="em_seg_1">0 0 0   0 0 0</pose> -->
 
             <parent>em_seg_1</parent>
             <child>em_seg_2</child>
@@ -120,7 +113,6 @@
         </joint>
 
         <link name="em_seg_2">
-            <!-- <pose relative_to="em_seg_1">0 0 0    0 0 0</pose> -->
 
             <intertial>
                 <mass>5</mass>
@@ -135,7 +127,6 @@
             </collision> -->
             
             <visual name="visual">
-                <!-- <pose>0 0 0   0 0 0</pose> -->
 
                 <geometry>
                     <box>
@@ -153,7 +144,6 @@
         </link>
 
         <joint name="em_seg_2_to_em_top_mount_phantom" type="fixed">
-            <!-- <pose relative_to="em_seg_2">0 0 1.0   0 0 0</pose> -->
             <parent>em_seg_2</parent>
             <child>em_top_mount_phantom</child>
         </joint>
@@ -161,7 +151,6 @@
 
         <link name="em_top_mount_phantom">
             <pose relative_to="em_seg_2">0 0 0.5   0 0 0</pose>
-            <!-- <pose>0 0 0.5   0 0 0</pose> -->
 
             <intertial>
                 <mass>50</mass>
@@ -186,13 +175,17 @@
                 mast_status
             </topic_name_pub_status>
             
-            <link_name_mast>
+            <link_name_segment_mount>
                 em_top_mount_phantom
-            </link_name_mast>
+            </link_name_segment_mount>
 
-            <joint_name_mast>
+            <joint_lift_seg_1>
                 em_seg1_lift
-            </joint_name_mast>
+            </joint_lift_seg_1>
+
+            <joint_lift_seg_2>
+                em_seg2_lift
+            </joint_lift_seg_2>
             
             <publish_rate>4</publish_rate>
             <min_height>1.0</min_height>

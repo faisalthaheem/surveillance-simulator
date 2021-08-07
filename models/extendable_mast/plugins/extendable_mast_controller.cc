@@ -42,12 +42,11 @@ namespace gazebo
             std::string topic_name_pub_status;
             //Topic on which commands are recevied
             std::string topic_name_sub_cmds;
-            //The link which forms the moving part and is connected via prismatic joint to the base
-            std::string link_name_mast;
-            //The name of joint that connects the mast to the base and is of type prismatic joint
-            std::string joint_name_mast;
             //Rate at which status is published
             int publish_rate;
+
+            std::string tmp_name_link;
+            std::string tmp_name_joint;
 
             if(!readFromSdf("topic_name_sub_cmds", topic_name_sub_cmds))
             {
@@ -61,16 +60,47 @@ namespace gazebo
             }
             topic_name_pub_status = this->model->GetName() + "/" + topic_name_pub_status;
 
-            if(!readFromSdf("link_name_mast", link_name_mast))
+            if(!readFromSdf("link_name_segment_mount", tmp_name_link))
+            {
+                return;
+            }
+            link_seg_top_mount= model->GetLink(tmp_name_link);
+            if(link_seg_top_mount == nullptr)
+            {
+                ROS_FATAL("Unable to find link [%s] in model.", tmp_name_link.c_str());
+                return;
+            }
+
+            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/classgazebo_1_1physics_1_1Joint.html
+            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/namespacegazebo_1_1physics.html#af7e4c06bce794eef119784b85ce330f5
+            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/classgazebo_1_1physics_1_1JointController.html
+
+            // ModelJoints available_joints = model->GetJointController()->GetJoints();
+            // printAvailableJoints(available_joints);
+
+
+            if(!readFromSdf("joint_lift_seg_1", tmp_name_joint))
             {
                 return;
             }
 
-            if(!readFromSdf("joint_name_mast", joint_name_mast))
+            joint_lift_seg_1 = this->model->GetJoint(tmp_name_joint);
+            if(!joint_lift_seg_1)
+            {
+                ROS_ERROR("Unable find joint [%s] in model", tmp_name_joint.c_str());
+                return;
+            }
+
+            if(!readFromSdf("joint_lift_seg_2", tmp_name_joint))
             {
                 return;
             }
-            joint_name_mast = this->model->GetName() + "::" + joint_name_mast;
+            joint_lift_seg_2 = this->model->GetJoint(tmp_name_joint);
+            if(!joint_lift_seg_2)
+            {
+                ROS_ERROR("Unable find joint [%s] in model", tmp_name_joint.c_str());
+                return;
+            }
 
             if(!readFromSdf("publish_rate", publish_rate))
             {
@@ -92,67 +122,29 @@ namespace gazebo
                 return;
             }
 
-            //Init ros related stuff
-            if(!ros::isInitialized())
-            {
-                ROS_FATAL_STREAM("ROS plugin not initalized.");
-                return;
-            }
 
-            //resolve reference to em_mast link for reading state in publish
-            link_mast= model->GetLink(link_name_mast);
-            if(link_mast == nullptr)
-            {
-                ROS_FATAL_STREAM("Unable to get reference to link em_mast.");
-                return;
-            }
-
-            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/classgazebo_1_1physics_1_1Joint.html
-            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/namespacegazebo_1_1physics.html#af7e4c06bce794eef119784b85ce330f5
-            //https://osrf-distributions.s3.amazonaws.com/gazebo/api/11.0.0/classgazebo_1_1physics_1_1JointController.html
-            ModelJoints available_joints = model->GetJointController()->GetJoints();
-            printAvailableJoints(available_joints);
-            if(0 == available_joints.count(joint_name_mast))
-            {
-                ROS_FATAL("Unable to find joint [%s] as specified in sdf.", joint_name_mast.c_str());
-                ModelJoints::iterator itr = available_joints.begin();
-                while(itr != available_joints.end())
-                {
-                    ROS_INFO("Available joint [%s]", itr->first.c_str());
-                    ++itr;
-                }
-                return;
-            }
-
-            this->joint_mast = available_joints[joint_name_mast];
-            if(!this->joint_mast)
-            {
-                ROS_ERROR("Unable to get joint [%s]", joint_name_mast.c_str());
-                return;
-            }
-            this->joint_mast_seg_2 = this->model->GetJoint("pl1::extendable_mast::em_seg2_lift");
-            if(!this->joint_mast_seg_2)
-            {
-                ROS_ERROR("Unable to get joint [em_seg2_lift]");
-                return;
-            }
-
-            this->pid = common::PID(45.0, 50.0, 10.0);
-            this->pid_seg_2 = common::PID(45.0, 50.0, 10.0);
+            this->pid_joint_lift_seg_1 = common::PID(45.0, 50.0, 10.0);
+            this->pid_joint_lift_seg_2 = common::PID(45.0, 50.0, 10.0);
 
             this->model->GetJointController()->SetPositionPID(
-                this->joint_mast->GetScopedName(), this->pid);
+                this->joint_lift_seg_1->GetScopedName(), this->pid_joint_lift_seg_1);
 
             this->model->GetJointController()->SetPositionPID(
-                this->joint_mast_seg_2->GetScopedName(), this->pid_seg_2);
+                this->joint_lift_seg_2->GetScopedName(), this->pid_joint_lift_seg_2);
 
             //Set initial target
             this->model->GetJointController()->SetPositionTarget(
-                this->joint_mast->GetScopedName(), this->target_height);
+                this->joint_lift_seg_1->GetScopedName(), this->target_height);
             this->model->GetJointController()->SetPositionTarget(
-                this->joint_mast_seg_2->GetScopedName(), this->target_height);
+                this->joint_lift_seg_2->GetScopedName(), this->target_height);
 
             //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Writing_the_Subscriber_Node
+            //Init ros related stuff
+            if(!ros::isInitialized())
+            {
+                ROS_FATAL("ROS plugin not initalized.");
+                return;
+            }
             sub_cmd = node.subscribe(topic_name_sub_cmds, 10, &ExtendableMastController::onCmdReceived, this);
             pub_state = node.advertise<surveillance_simulator::MastStatus>(topic_name_pub_status, 10);
 
@@ -204,15 +196,15 @@ namespace gazebo
 
             // ROS_INFO("TARGET_HEIGHT [%f]", this->target_height);
 
-            if(this->joint_mast)
+            if(this->joint_lift_seg_1)
             {
                 this->model->GetJointController()->SetPositionTarget(
-                    this->joint_mast->GetScopedName(), this->target_height);
+                    this->joint_lift_seg_1->GetScopedName(), this->target_height);
             }
-            if(this->joint_mast_seg_2)
+            if(this->joint_lift_seg_2)
             {
                 this->model->GetJointController()->SetPositionTarget(
-                    this->joint_mast_seg_2->GetScopedName(), this->target_height);
+                    this->joint_lift_seg_2->GetScopedName(), this->target_height);
             }
         }
 
@@ -233,15 +225,13 @@ namespace gazebo
         {
             //https://osrf-distributions.s3.amazonaws.com/gazebo/api/dev/classgazebo_1_1physics_1_1Link.html
             //https://osrf-distributions.s3.amazonaws.com/ign-math/api/1.0.0/classignition_1_1math_1_1Pose3.html
-            ignition::math::Pose3d pose = link_mast->RelativePose();
+            ignition::math::Pose3d pose = link_seg_top_mount->RelativePose();
             ignition::math::Vector3 position = pose.Pos();
 
-            ROS_INFO("Mast relative pose is [%f]", position.Z());
+            // ROS_INFO("Mast relative pose is [%f]", position.Z());
            
             return position.Z();
         }
-
-
 
     private:
         template<typename T>
@@ -267,10 +257,10 @@ namespace gazebo
         //https://osrf-distributions.s3.amazonaws.com/gazebo/api/dev/classgazebo_1_1physics_1_1Model.html
         physics::ModelPtr model;
         
-        gazebo::physics::JointPtr joint_mast; 
-        gazebo::physics::JointPtr joint_mast_seg_2;
+        gazebo::physics::JointPtr joint_lift_seg_1; 
+        gazebo::physics::JointPtr joint_lift_seg_2;
 
-        gazebo::physics::LinkPtr link_mast;
+        gazebo::physics::LinkPtr link_seg_top_mount;
 
         sdf::ElementPtr sdf;
 
@@ -280,8 +270,8 @@ namespace gazebo
         ros::Timer publish_timer;
 
         //to control the movement of mast
-        common::PID pid;
-        common::PID pid_seg_2;
+        common::PID pid_joint_lift_seg_1;
+        common::PID pid_joint_lift_seg_2;
 
         //Minimum/Maximum height of the mast, reported to C2
         float min_height, max_height, step_height, target_height = 0.0f;
