@@ -52,8 +52,9 @@
                     <friction>0.05</friction>
                 </dynamics>
                 <limit>
+                    <!-- Keeping the upper limit 25% higher than what's expected should move things as desired -->
                     <lower>0.0</lower>
-                    <upper>1.0</upper>
+                    <upper>1.2</upper> 
                 </limit>
             </axis>
 
@@ -93,6 +94,8 @@
 
         <joint name="em_seg2_lift" type="prismatic">
 
+            <pose relative_to="em_seg_1">0 0 0   0 0 0</pose>
+
             <parent>em_seg_1</parent>
             <child>em_seg_2</child>
 
@@ -105,14 +108,17 @@
                     <friction>0.05</friction>
                 </dynamics>
                 <limit>
+                    <!-- Keeping the upper limit 25% higher than what's expected should move things as desired -->
                     <lower>0.0</lower>
-                    <upper>1.0</upper>
+                    <upper>1.2</upper>
                 </limit>
             </axis>
 
         </joint>
 
         <link name="em_seg_2">
+
+            <pose relative_to="em_seg_1">0 0 0   0 0 0</pose>
 
             <intertial>
                 <mass>5</mass>
@@ -132,7 +138,7 @@
                     <box>
                         <size>0.1 0.1 1.0</size>
                     </box>
-                </geometry>
+                </geometry>em_seg_2
                 <material>
                     <script>
                         <uri>file://media/materials/scripts/gazebo.material</uri>
@@ -186,11 +192,20 @@
             <joint_lift_seg_2>
                 em_seg2_lift
             </joint_lift_seg_2>
+
+            <joint_lift_seg_1_pid>
+                450.0 100.0 100.0
+            </joint_lift_seg_1_pid>
+
+            <joint_lift_seg_2_pid>
+                450.0 100.0 100.0
+            </joint_lift_seg_2_pid>
             
-            <publish_rate>4</publish_rate>
-            <min_height>1.0</min_height>
-            <max_height>3.0</max_height>
             <step_height>0.02</step_height>
+
+            <publish_rate>4</publish_rate>
+            <reported_min_height>1.0</reported_min_height>
+            <reported_max_height>3.0</reported_max_height>
         </plugin>
     </model>
-</sdf>em_seg_2
+</sdf>

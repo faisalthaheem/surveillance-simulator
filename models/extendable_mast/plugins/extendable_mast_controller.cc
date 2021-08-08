@@ -6,8 +6,10 @@
 #include <ignition/math/Pose3.hh>
 
 
-#include <gazebo/msgs/msgs.hh>
 #include <sdf/sdf.hh>
+
+#include <gazebo/msgs/msgs.hh>
+//https://github.com/arpg/Gazebo/blob/master/gazebo/physics/BoxShape.cc
 #include <gazebo/transport/Node.hh>
 #include <gazebo/transport/Subscriber.hh>
 #include <gazebo/transport/Publisher.hh>
@@ -47,6 +49,8 @@ namespace gazebo
 
             std::string tmp_name_link;
             std::string tmp_name_joint;
+            ignition::math::Vector3d tmp_vec3;
+            
 
             if(!readFromSdf("topic_name_sub_cmds", topic_name_sub_cmds))
             {
@@ -107,12 +111,12 @@ namespace gazebo
                 return;
             }
 
-            if(!readFromSdf("min_height", this->min_height))
+            if(!readFromSdf("reported_min_height", this->reported_min_height))
             {
                 return;
             }
 
-            if(!readFromSdf("max_height", this->max_height))
+            if(!readFromSdf("reported_max_height", this->reported_max_height))
             {
                 return;
             }
@@ -122,9 +126,17 @@ namespace gazebo
                 return;
             }
 
+            if(!readFromSdf("joint_lift_seg_1_pid", tmp_vec3))
+            {
+                return;
+            }
+            this->pid_joint_lift_seg_1 = common::PID(tmp_vec3.X(), tmp_vec3.Y(), tmp_vec3.Z());
 
-            this->pid_joint_lift_seg_1 = common::PID(45.0, 50.0, 10.0);
-            this->pid_joint_lift_seg_2 = common::PID(45.0, 50.0, 10.0);
+            if(!readFromSdf("joint_lift_seg_2_pid", tmp_vec3))
+            {
+                return;
+            }
+            this->pid_joint_lift_seg_2 = common::PID(tmp_vec3.X(), tmp_vec3.Y(), tmp_vec3.Z());
 
             this->model->GetJointController()->SetPositionPID(
                 this->joint_lift_seg_1->GetScopedName(), this->pid_joint_lift_seg_1);
@@ -134,9 +146,9 @@ namespace gazebo
 
             //Set initial target
             this->model->GetJointController()->SetPositionTarget(
-                this->joint_lift_seg_1->GetScopedName(), this->target_height);
+                this->joint_lift_seg_1->GetScopedName(), this->joint_lift_seg_1->LowerLimit());
             this->model->GetJointController()->SetPositionTarget(
-                this->joint_lift_seg_2->GetScopedName(), this->target_height);
+                this->joint_lift_seg_2->GetScopedName(), this->joint_lift_seg_2->LowerLimit());
 
             //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Writing_the_Subscriber_Node
             //Init ros related stuff
@@ -177,43 +189,53 @@ namespace gazebo
 
         void onCmdReceived(const surveillance_simulator::MastCommand& cmd)
         {
-            double current_height = getMastHeight();
-
             if(cmd.command_type == 30) //absolute
             {
-                this->target_height = cmd.absolute_height;
+                //not implemented
+                //target_joint_displacement = cmd.absolute_height;
             }else{
-                if(cmd.command_type == 10 && (this->target_height + this->step_height) <= this->max_height ) // move up
-                {
-                    this->target_height += this->step_height;
 
-                }else if( (this->target_height - this->step_height) > 0)
+                if(cmd.command_type == 10)
                 {
-                    this->target_height -= this->step_height;
-
+                    if(setJointTarget(this->joint_lift_seg_1, target_joint_displacement + step_height))
+                    {
+                        target_joint_displacement += step_height;
+                        setJointTarget(this->joint_lift_seg_2, target_joint_displacement);
+                    }
+                    
+                }else if( cmd.command_type == 20)
+                {
+                    if(setJointTarget(this->joint_lift_seg_1, target_joint_displacement - step_height))
+                    {
+                        target_joint_displacement -= step_height;
+                        setJointTarget(this->joint_lift_seg_2, target_joint_displacement);
+                    }
                 }
             }
+        }
 
-            // ROS_INFO("TARGET_HEIGHT [%f]", this->target_height);
-
-            if(this->joint_lift_seg_1)
+        /**
+         * 
+         * Will return true if the given target is within limits of the joint
+         * 
+         **/
+        bool setJointTarget(gazebo::physics::JointPtr &joint, double target)
+        {
+            if( target >= joint->LowerLimit() && target <= joint->UpperLimit())
             {
                 this->model->GetJointController()->SetPositionTarget(
-                    this->joint_lift_seg_1->GetScopedName(), this->target_height);
+                    joint->GetScopedName(), target);
+                    return true;
             }
-            if(this->joint_lift_seg_2)
-            {
-                this->model->GetJointController()->SetPositionTarget(
-                    this->joint_lift_seg_2->GetScopedName(), this->target_height);
-            }
+            return false;
         }
 
         void advertStatus(const ros::TimerEvent& e)
         {
              
             surveillance_simulator::MastStatus status;
-            status.min_height = this->min_height;
-            status.max_height = this->max_height;
+            status.min_height = this->reported_min_height;
+            status.max_height = this->reported_max_height;
             status.current_height = getMastHeight();
             status.error_code = 0;
 
@@ -228,7 +250,7 @@ namespace gazebo
             ignition::math::Pose3d pose = link_seg_top_mount->RelativePose();
             ignition::math::Vector3 position = pose.Pos();
 
-            // ROS_INFO("Mast relative pose is [%f]", position.Z());
+            // ROS_INFO("Mast relative pose is [%f] target is [%f]", position.Z(), this->target_joint_displacement);
            
             return position.Z();
         }
@@ -239,10 +261,6 @@ namespace gazebo
         {
             if(!this->sdf->HasElement(element_name))
             {
-                // ostringstream errMsg;
-                // errMsg << "Missing " << element_name << " in plugin sdf.";
-                // ROS_FATAL_STREAM(errMsg.str());
-
                 ROS_FATAL("Missing [%s] element in sdf.", element_name.c_str());
 
                 return false;
@@ -259,6 +277,7 @@ namespace gazebo
         
         gazebo::physics::JointPtr joint_lift_seg_1; 
         gazebo::physics::JointPtr joint_lift_seg_2;
+        double target_joint_displacement = 0.0;
 
         gazebo::physics::LinkPtr link_seg_top_mount;
 
@@ -274,7 +293,7 @@ namespace gazebo
         common::PID pid_joint_lift_seg_2;
 
         //Minimum/Maximum height of the mast, reported to C2
-        float min_height, max_height, step_height, target_height = 0.0f;
+        float reported_min_height, reported_max_height, step_height;
 
         // Pointer to the update event connection
     private:
