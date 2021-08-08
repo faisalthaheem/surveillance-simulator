@@ -44,9 +44,9 @@
         <child>extendable_mast::em_base_phantom</child>
     </joint>
 
-    <!-- <include>
+    <include>
         <uri>model://sensor_mount/</uri>
-        <pose relative_to="extendable_mast::em_top_mount_phantom">0 0 0   0 0 0</pose>
+        <pose relative_to="extendable_mast::em_top_mount_phantom">0 0 0.25   0 0 0</pose>
     </include>
 
     <joint name="mast_to_sensor_mount" type="fixed">
@@ -56,7 +56,7 @@
 
     <include>
         <uri>model://eo_daylight_cam/</uri>
-        <pose>0.55 0 2.25 1.5707 0 0</pose>
+        <pose relative_to="sensor_mount::sensor_mount_eo_1_link">0 0 0   1.5707 0 0</pose>
     </include>
 
     <joint name="sensor_mount_eo_1_to_cam_with_lrf" type="fixed">
@@ -66,13 +66,13 @@
 
     <include>
         <uri>model://lrf/</uri>
-        <pose>0.625 0 2.25 0 0 0</pose>
+        <pose relative_to="eo_daylight_cam::eodlcam_phantom_aux_mount">0 0 0   -1.5707 0 0</pose>
     </include>
     
     <joint name="eo_daylight_cam_to_lrf" type="fixed">
         <parent>eo_daylight_cam::eodlcam_phantom_aux_mount</parent>
         <child>lrf::lrf_lrf</child>
-    </joint> -->
+    </joint>
     
   </model>
 </sdf>

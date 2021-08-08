@@ -120,7 +120,7 @@
 
     <!-- phantom link to which payload is attached-->
     <link name="sensor_mount_eo_1_link">
-        <pose>1.1 0 0.3 0 0 0</pose>
+        <pose>0.56 0 0.3 0 0 0</pose>
     </link>
 
     <plugin name="sensor_mount_controller" filename="libsensor_mount_controller.so">
