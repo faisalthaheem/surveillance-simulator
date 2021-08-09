@@ -19,10 +19,11 @@
             </geometry>
         </collision> -->
         
-        <!-- <visual name="visual">
+        <visual name="visual">
+            <pose>0 0 -0.5   0 0 0</pose>
             <geometry>
                 <box>
-                  <size>2.0 2.0 0.5</size>
+                  <size>2.0 2.0 1.0</size>
                 </box>
             </geometry>
             <material>
@@ -31,7 +32,7 @@
                     <name>Gazebo/DarkGrey</name>
                 </script>
             </material>
-        </visual> -->
+        </visual>
     </link>
 
     <include>

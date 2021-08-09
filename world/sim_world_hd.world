@@ -18,12 +18,13 @@
 
     <include>
       <uri>model://baylands</uri>
+      <pose>85.473 115.4525 0.0    0 0 0</pose>
     </include>
 
 	<include>
 		<uri>model://surv_payload</uri>
 		<name>pl1</name>
-		<pose>-5.0 0 0.0 0 0 0</pose>
+		<pose>0 0 2   0 0 0</pose>
 	</include>	
 
     <spherical_coordinates>

@@ -142,7 +142,7 @@
                 <material>
                     <script>
                         <uri>file://media/materials/scripts/gazebo.material</uri>
-                        <name>Gazebo/Red</name>
+                        <name>Gazebo/Grey</name>
                     </script>
                 </material>
             </visual>
@@ -164,10 +164,21 @@
 
             <visual name="visual">
                 <geometry>
-                    <box>
+                    <!-- <box>
                         <size>0.25 0.25 0.02</size>
-                    </box>
+                    </box> -->
+                    <cylinder>
+                        <radius>0.1</radius>
+                        <length>0.08</length>
+                    </cylinder>
                 </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+                
             </visual>
         </link>
         

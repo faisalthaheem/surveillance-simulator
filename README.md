@@ -1,8 +1,17 @@
-# surveillance-simulator
-For ease of development of C2 (Command and Control) applications this simulator offers EO and IR live video feed in a simulated 3D environment. The payload consists of a mast and the cameras mounted on a gimbal offering 2 degrees of freedom. Controllable through STANAG4586 this project is a ROS2 package.
+# STANAG 4586 compliant surveillance simulator
+
+This project aims to develop a fully functional mission module that can be mounted on a virtual unmanned ground vehicle for simulating ISR missions. The module mimicks functionalities of a real life mission module and supports a variety of sensors, actuators and features which can be remotely controlled by a command and control application. Sensors/actuators currently available include
+- Extendable mast
+- Electro Optic camera with RTSP feed of the simulated virtual environment
+- Laser Range Finder (LRF)
+
+![Gazebo model rev 5](docs/screenshots/gazebo-model-rev-5.png?raw=true "Gazebo model rev 5")
+
+Revision 5 illustrating new Mast, Pan Tilt mount, Daylight Camera and LRF module.
+
 
 ![Gazebo model rev 4](docs/screenshots/gazebo-model-rev-4.gif?raw=true "Gazebo model rev 4")
-Pan, Tilt, Mast functions.
+Revision 4 showing an animation of Pan, Tilt, Mast functions.
 
 
 ![Gazebo model rev 3](docs/screenshots/gazebo-model-rev-3.png?raw=true "Gazebo model rev 3")
