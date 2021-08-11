@@ -71,7 +71,12 @@ def main(args):
 
     Gst.init(None)
 
-    pipeline = Gst.parse_launch("appsrc format=GST_FORMAT_TIME name=appsrc emit-signals=True is-live=True block=True caps=\"video/x-raw,format=BGR,width=800,height=600,framerate=10/1\" !  rotate angle=-1.5708 ! queue ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000")
+    #for nvidia h/w acceleration need libnvidia-encode-460 libnvidia-decode-460 libdrm-dev
+
+    pipeline = Gst.parse_launch("appsrc format=GST_FORMAT_TIME name=appsrc emit-signals=True is-live=True block=True caps=\"video/x-raw,format=BGR,width=800,height=600,framerate=10/1\" ! queue ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000")
+    # Todo: enable h/w acceleartion on nvidia, intel and amd gpus
+    # nvidia - https://www.endpoint.com/blog/2021/04/gstreamer-nvenc-for-ubuntu-20-04/
+    # pipeline = Gst.parse_launch("appsrc format=GST_FORMAT_TIME name=appsrc emit-signals=True is-live=True block=True caps=\"video/x-raw,format=BGR,width=800,height=600,framerate=10/1\" ! queue ! videoconvert ! nvh264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000")
     
     pipeline.set_state(Gst.State.PLAYING)
 
