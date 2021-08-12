@@ -50,7 +50,7 @@
     <link name="lrf_sensor">
         <pose>0 0 0 0 0 0</pose>
         <!-- Add a ray sensor, and give it a name -->
-        <sensor type="ray" name="sensor">
+        <sensor type="ray" name="lrf_ray_sensor">
 
             <!-- Position the ray sensor based on the specification. Also rotate
                 it by 90 degrees around the X-axis so that the <horizontal> rays
