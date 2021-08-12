@@ -33,6 +33,56 @@
 
 		</include>
 
+		<!-- For estimating position-->
+		<model name='number1'>
+			<pose>0 10 0.5 0 -0 0</pose>
+			<static>1</static>
+			<link name='link'>
+				<visual name='visual'>
+				<geometry>
+					<mesh>
+					<uri>model://number1/meshes/number.dae</uri>
+					</mesh>
+				</geometry>
+				<material>
+					<script>
+					<uri>model://number1/materials/scripts</uri>
+					<uri>model://number1/materials/textures</uri>
+					<name>Number/One</name>
+					</script>
+				</material>
+				</visual>
+				<self_collide>0</self_collide>
+				<enable_wind>0</enable_wind>
+				<kinematic>0</kinematic>
+			</link>
+		</model>
+
+		<model name='number3'>
+			<pose>0 100 0.5 0 -0 0</pose>
+			<static>1</static>
+			<link name='link'>
+				<visual name='visual'>
+				<geometry>
+					<mesh>
+					<uri>model://number3/meshes/number.dae</uri>
+					</mesh>
+				</geometry>
+				<material>
+					<script>
+					<uri>model://number3/materials/scripts</uri>
+					<uri>model://number3/materials/textures</uri>
+					<name>Number/Three</name>
+					</script>
+				</material>
+				</visual>
+				<self_collide>0</self_collide>
+				<enable_wind>0</enable_wind>
+				<kinematic>0</kinematic>
+			</link>
+		</model>
+
+		<!-- The surv model-->
 		<include>
 			<uri>model://surv_payload</uri>
 			<name>pl1</name>
