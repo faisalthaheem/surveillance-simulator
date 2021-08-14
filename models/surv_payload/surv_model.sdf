@@ -57,7 +57,7 @@
 
     <include>
         <uri>model://eo_daylight_cam/</uri>
-        <pose relative_to="sensor_mount::sensor_mount_eo_1_link">0 0 0   1.5707 0 0</pose>
+        <pose relative_to="sensor_mount::sensor_mount_eo_1_link">0 0 0   0 0 0</pose>
     </include>
 
     <joint name="sensor_mount_eo_1_to_cam_with_lrf" type="fixed">
@@ -67,7 +67,7 @@
 
     <include>
         <uri>model://lrf/</uri>
-        <pose relative_to="eo_daylight_cam::eodlcam_phantom_aux_mount">0 0 0   -1.5707 0 0</pose>
+        <pose relative_to="eo_daylight_cam::eodlcam_phantom_aux_mount">0 0 0   0 0 0</pose>
     </include>
     
     <joint name="eo_daylight_cam_to_lrf" type="fixed">

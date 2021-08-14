@@ -234,11 +234,14 @@ namespace gazebo
 
         void onPtzTargets(const surveillance_simulator::Ptz& msg)
         {
-            this->target_pan = msg.pan;
-            this->model->GetJointController()->SetPositionTarget(
-                this->joint_pan->GetScopedName(), this->target_pan);
+            if(msg.pan != -1000.0f)
+            {
+                this->target_pan = msg.pan;
+                this->model->GetJointController()->SetPositionTarget(
+                    this->joint_pan->GetScopedName(), this->target_pan);
+            }
             
-            if(msg.tilt >= this->limit_tilt_lower && msg.tilt <= this->limit_tilt_upper)
+            if(msg.tilt != -1000.0f && msg.tilt >= this->limit_tilt_lower && msg.tilt <= this->limit_tilt_upper)
             {
                 this->target_tilt = msg.tilt;
                 this->model->GetJointController()->SetPositionTarget(

@@ -137,8 +137,13 @@ async def process_message(wrapper, msg):
     msg_to_publish = None
 
     if wrapper.message_type == 200:
-        ptz_cache.pan = float(msg.set_centreline_azimuth_angle)
+        
+        ptz_cache.pan = float(msg.set_centreline_azimuth_angle)        
         ptz_cache.tilt = float(msg.set_centreline_elevation_angle)
+        
+        ptz_cache.zoomcmd = msg.set_zoom
+        ptz_cache.hfov = float(msg.set_horizontal_fov)
+        ptz_cache.vfov = float(msg.set_vertical_fov)
 
         msg_to_publish = copy.copy(ptz_cache)
 

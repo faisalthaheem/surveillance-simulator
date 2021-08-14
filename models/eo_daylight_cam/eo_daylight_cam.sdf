@@ -6,11 +6,6 @@
     <link name="eodlcam_phantom_base">
     </link>    
 
-    <joint name="eodlcam_phantom_base_to_eodlcam_camera" type="fixed">
-        <parent>eodlcam_phantom_base</parent>
-        <child>eodlcam_camera</child>
-    </joint>
-
     <joint name="eodlcam_phantom_base_to_eodlcam_phantom_aux_mount" type="fixed">
         <parent>eodlcam_phantom_base</parent>
         <child>eodlcam_phantom_aux_mount</child>
@@ -20,7 +15,17 @@
         <pose>0.075 0 0 0 0 0</pose>
     </link>
 
-    <link name="eodlcam_camera">
+    <joint name="eodlcam_phantom_base_to_eodlcam_camera_visual" type="fixed">
+        <parent>eodlcam_phantom_base</parent>
+        <child>eodlcam_camera_visual</child>
+    </joint>
+
+    <link name="eodlcam_camera_visual">
+
+        <!-- <pose relative_to=""> -->
+        <pose relative_to="eodlcam_phantom_base">
+            0 0 0   1.5707 0 0
+        </pose>
 
         <collision name="collision">
             <geometry>
@@ -57,17 +62,33 @@
                 </script>
             </material> 
         </visual>
+    </link>
 
-        <sensor type="camera" name="eo_cam">
+    <joint name="eodlcam_phantom_base_to_eodlcam_phantom_camera_sensor" type="fixed">
+        <parent>eodlcam_phantom_base</parent>
+        <child>eodlcam_phantom_camera_sensor</child>
+    </joint>
+
+
+    <link name="eodlcam_phantom_camera_sensor">
+
+        <pose relative_to="eodlcam_phantom_base">
+            0 0.1 0   0 0 1.5707
+        </pose>
+
+        <sensor type="camera" name="eodlcam_sensor_camera">
             <update_rate>10.0</update_rate>
-            <pose>0 0 -0.1 0 1.5707 0</pose>
+            <!-- <pose>0 0.1 0   0 0 1.5707</pose> -->
             <visualize>true</visualize>
+            <always_on>1</always_on>
 
             <camera name="head">
                 <!-- <save enabled="true">
                     <path>tmp_cam_images</path>
                 </save> -->
-                <horizontal_fov>1.3962634</horizontal_fov>
+                <!-- <horizontal_fov>1.047</horizontal_fov> -->
+                <horizontal_fov>0.05</horizontal_fov>
+                <!-- <vertical_fov>0.5</vertical_fov> -->
                 <image>
                     <width>800</width>
                     <height>600</height>
@@ -77,14 +98,11 @@
                     <near>0.02</near>
                     <far>300</far>
                 </clip>
-                <noise>
+                <!-- <noise>
                     <type>gaussian</type>
-                    <!-- Noise is sampled independently per pixel on each frame.
-                        That pixel's noise value is added to each of its color
-                        channels, which at that point lie in the range [0,1]. -->
                     <mean>0.0</mean>
                     <stddev>0.007</stddev>
-                </noise>
+                </noise> -->
             </camera>
             <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
                 <alwaysOn>true</alwaysOn>
@@ -101,8 +119,22 @@
                 <distortionT1>0.0</distortionT1>
                 <distortionT2>0.0</distortionT2>
             </plugin>
+
+            <plugin name="cam_controller" filename="libcamera_controller.so">
+                <topic_name_pub_status>
+                    zoom_status
+                </topic_name_pub_status>
+                
+                <topic_name_sub_commands>
+                    ptz_targets
+                </topic_name_sub_commands>
+                
+                <publish_rate>10</publish_rate>
+
+            </plugin>
         </sensor>
     </link>
 
+    
   </model>
 </sdf>
