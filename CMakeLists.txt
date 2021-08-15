@@ -54,6 +54,7 @@ find_package(gazebo REQUIRED)
 add_message_files(
   FILES
   Ptz.msg
+  PtzStatus.msg
   RelativePanTilt.msg
   MastCommand.msg
   MastStatus.msg

@@ -20,7 +20,7 @@ from stanag4586edav1.message20040 import *
 from stanag4586edav1.message21 import *
 from rospy.topics import Message
 
-from surveillance_simulator.msg import Ptz, RelativePanTilt, MastCommand, MastStatus, LrfCommand, LrfStatus
+from surveillance_simulator.msg import Ptz, PtzStatus, RelativePanTilt, MastCommand, MastStatus, LrfCommand, LrfStatus
 
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -46,8 +46,32 @@ server = None
 #config variables read through env
 EXTERNAL_RTSP_IP_ADDRESS = os.environ.get("EXTERNAL_RTSP_IP_ADDRESS","localhost")
 
-def lrf_status_callback(msg):
+def ptz_status_callback(msg):
+    if server is None: return
+    
+    station = server.get_entity("eo")
+    if station is None:
+        logger.debug("Eo station is none. Cannot get details.") 
+        return
 
+    monitoring_cucs = station.getMonitoringCucs()
+
+    msg302 = make302(station)
+    msg302.actual_vertical_field_of_view = msg.vfov
+    msg302.actual_horizontal_field_of_view = msg.hfov
+
+    for cucsid in monitoring_cucs:
+
+        msg302.cucs_id = cucsid
+    
+        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
+        wrapped_reply = wrapped_reply.wrap_message(1, 302, msg302, False)
+
+        current_loop.call_soon(server.tx_data, wrapped_reply)
+    
+    logger.debug("Exit publishing zoom status") 
+
+def lrf_status_callback(msg):
     if server is None: return
     
     station = server.get_entity("lrf")
@@ -56,6 +80,25 @@ def lrf_status_callback(msg):
         return
 
     monitoring_cucs = station.getMonitoringCucs()
+
+    msg302 = make302(station)
+    msg302.reported_range = msg.range_reported
+    msg302.fire_laser_rangefinder_status = msg.status
+
+
+    for cucsid in monitoring_cucs:
+
+        msg302.cucs_id = cucsid
+    
+        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
+        wrapped_reply = wrapped_reply.wrap_message(1, 302, msg302, False)
+
+        current_loop.call_soon(server.tx_data, wrapped_reply)
+    
+    logger.debug("Exit publishing lrf status") 
+
+
+def make302(station):
 
     msg302 = Message302(Message302.MSGNULL)
     msg302.time_stamp = 0x00
@@ -68,10 +111,10 @@ def lrf_status_callback(msg):
     msg302.eo_sensor_mode_status = Message302_eo_sensor_mode_status.COLOR_MODE
     msg302.ir_polarity_status = Message302_ir_polarity_status.WHITE_HOT
     msg302.image_output_state = Message302_image_output_state.BOTH
-    msg302.actual_centerline_elevation_angle = 1.0
-    msg302.actual_vertical_field_of_view = 1.0
-    msg302.actual_centerline_azimuth_angle = 1.0
-    msg302.actual_horizontal_field_of_view = 1.0
+    msg302.actual_centerline_elevation_angle = -1000.0
+    msg302.actual_vertical_field_of_view = -1000.0
+    msg302.actual_centerline_azimuth_angle = -1000.0
+    msg302.actual_horizontal_field_of_view = -1000.0
     msg302.actual_sensor_rotation_angle = 1.0
     msg302.image_position = 1
     msg302.latitude = 33.0
@@ -79,23 +122,15 @@ def lrf_status_callback(msg):
     msg302.altitude = 1.0
     msg302.pointing_mode_state = Message302_pointing_mode_state.ANGLE_RELATIVE_TO_UA
     msg302.preplan_mode = Message302_preplan_mode.OPERATE_IN_PREPLAN_MODE
-    msg302.reported_range = msg.range_reported
+    msg302.reported_range = -1000.0
     msg302.fire_laser_pointer_status = Message302_fire_laser_pointer_status.ON_SAFED
-    msg302.fire_laser_rangefinder_status = msg.status
+    msg302.fire_laser_rangefinder_status = Message302_fire_laser_pointer_status.OFF
     msg302.selected_laser_rangefinder_first_last_pulse = Message302_selected_laser_rangefinder_first_last_pulse.FIRST
     msg302.laser_designator_code = 0x01
     msg302.laser_designator_status = Message302_laser_designator_status.ON
 
-    for cucsid in monitoring_cucs:
+    return msg302
 
-        msg302.cucs_id = cucsid
-    
-        wrapped_reply = MessageWrapper(MessageWrapper.MSGNULL)
-        wrapped_reply = wrapped_reply.wrap_message(1, 302, msg302, False)
-
-        current_loop.call_soon(server.tx_data, wrapped_reply)
-    
-    logger.debug("Exit publishing lrf status") 
 
 def mast_status_callback(msg):
 
@@ -262,6 +297,7 @@ async def main():
         #subscribe to statuses
         rospy.Subscriber("/pl1/mast_status", MastStatus, mast_status_callback)
         rospy.Subscriber("/pl1/lrf_status", LrfStatus, lrf_status_callback)
+        rospy.Subscriber("/pl1/ptz_status", PtzStatus, ptz_status_callback)
 
         rospy.sleep(1.0) #establish connection
 

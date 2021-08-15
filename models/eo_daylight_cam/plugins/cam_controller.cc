@@ -15,6 +15,7 @@
 #include <gazebo/rendering/Camera.hh>
 
 #include <surveillance_simulator/Ptz.h>
+#include <surveillance_simulator/PtzStatus.h>
 
 
 #include <ros/ros.h>
@@ -90,9 +91,9 @@ namespace gazebo
             }
 
             //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29#roscpp_tutorials.2FTutorials.2FWritingPublisherSubscriber.Writing_the_Subscriber_Node
-            // pub_state = node.advertise<surveillance_simulator::LrfStatus>(topic_name_pub_status, 10);
+            pub_state = node.advertise<surveillance_simulator::PtzStatus>(topic_name_pub_status, 10);
             publish_timer = node.createTimer(publish_rate, &CameraController::advertStatus, this);
-
+            process_timer = node.createTimer(7, &CameraController::processZoomCommands, this);
             sub_zoom_cmds = node.subscribe(topic_name_sub_commands, 10, &CameraController::onZoomCmd, this);
         }
 
@@ -139,20 +140,37 @@ namespace gazebo
 
         void advertStatus(const ros::TimerEvent& e)
         {
+            if(!_camera || !this->_parentSensor->IsActive())
+            {
+                return;
+            }
+
+            surveillance_simulator::PtzStatus status;
+            status.pan = -1000.0f;
+            status.tilt = -1000.0f;
+            status.hfov = (float)_camera->HFOV().Radian();
+            status.vfov = (float)_camera->VFOV().Radian();
+
+            this->pub_state.publish(status);
+
+        }
+
+        void processZoomCommands(const ros::TimerEvent& e)
+        {
             if(this->_zoomcmd == 2) //zoom in
             {
-                if(this->_curr_zoom + 0.05 < 3.14)
+                if(this->_curr_zoom - 0.05 >= 0.05)
                 {
-                    this->_curr_zoom += 0.05;
+                    this->_curr_zoom -= 0.05;
                     _camera->SetHFOV(this->_curr_zoom);
                 }else{
                     this->_zoomcmd = 1; //stop zoom
                 }
             }else if(this->_zoomcmd == 3) //zoom out
             {
-                if(this->_curr_zoom - 0.05 >= 0.05)
+                if(this->_curr_zoom + 0.05 < 3.14)
                 {
-                    this->_curr_zoom -= 0.05;
+                    this->_curr_zoom += 0.05;
                     _camera->SetHFOV(this->_curr_zoom);
                 }else{
                     this->_zoomcmd = 1; //stop zoom
@@ -188,6 +206,7 @@ namespace gazebo
         ros::Publisher pub_state;
         ros::Subscriber sub_zoom_cmds;
         ros::Timer publish_timer;
+        ros::Timer process_timer;
         
         uint _zoomcmd = 0;
         double _curr_zoom = 0.05;

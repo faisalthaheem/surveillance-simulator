@@ -122,14 +122,14 @@
 
             <plugin name="cam_controller" filename="libcamera_controller.so">
                 <topic_name_pub_status>
-                    zoom_status
+                    ptz_status
                 </topic_name_pub_status>
                 
                 <topic_name_sub_commands>
                     ptz_targets
                 </topic_name_sub_commands>
                 
-                <publish_rate>10</publish_rate>
+                <publish_rate>1</publish_rate>
 
             </plugin>
         </sensor>
