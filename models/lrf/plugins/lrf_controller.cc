@@ -88,6 +88,7 @@ namespace gazebo
             sub_lrf_cmds = node.subscribe(topic_name_sub_commands, 10, &LrfController::onLrfCmd, this);
 
             //http://gazebosim.org/tutorials?tut=custom_messages
+            //todo: ensure topic exists
             gznode = gazebo::transport::NodePtr(new gazebo::transport::Node());
             gznode->Init(_parent->GetName());
             this->sub_ray_sensor = gznode->Subscribe(
@@ -114,10 +115,9 @@ namespace gazebo
         // void onRaySensorMsg(const std::string& msg)
         void onRaySensorMsg(StampedLaserScanPtr& msg)
         {
-            if(msg->scan().ranges_size() > 0)
+            if(isFiring() && msg->scan().ranges_size() > 0)
             {
                 this->last_observed_range = msg->scan().ranges(0);
-            // ROS_INFO("Got laser scan [%f]", dist);
             }
         }
 
