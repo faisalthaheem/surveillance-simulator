@@ -1,7 +1,8 @@
 {
     "files.associations": {
       "*.sdf": "xml",
-      "string": "cpp"
+      "string": "cpp",
+      "map": "cpp"
     },
     "cmake.configureOnOpen": false,
     "python.autoComplete.extraPaths": [

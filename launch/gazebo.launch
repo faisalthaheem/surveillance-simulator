@@ -30,7 +30,7 @@
 
         </node>
 
-        <node 
+        <!-- <node 
                 name="eo_cam_rtsp_stream_src" 
                 pkg="surveillance_simulator" 
                 type="eo_cam_rtsp_stream_src.py" 
@@ -38,7 +38,7 @@
                 respawn_delay="3"
         >
         </node>
-
+ -->
         <!-- http://wiki.ros.org/roslaunch/XML/node -->
         <!-- <node 
                 name="payload_controller" 

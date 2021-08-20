@@ -132,6 +132,23 @@
                 <publish_rate>1</publish_rate>
 
             </plugin>
+
+            <plugin name="cam_videofeed" filename="libcamera_video_feed.so">
+                
+                <gst_pipeline>
+                    appsrc format=GST_FORMAT_TIME name=appsrc emit-signals=True is-live=True block=True caps="video/x-raw,format=RGB,width=800,height=600,framerate=10/1" ! queue ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+                </gst_pipeline>
+
+                <image_width>
+                    800
+                </image_width>
+
+                <image_height>
+                    600
+                </image_height>
+
+                
+            </plugin>
         </sensor>
     </link>
 

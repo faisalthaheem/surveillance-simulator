@@ -20,8 +20,9 @@ find_package(gazebo REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
 
-# set(GStreamer_FIND_VERSION "1.0")
-find_package(GStreamer REQUIRED)
+pkg_search_module(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-base-1.0)
+pkg_search_module(GSTREAMER_APP REQUIRED gstreamer-app-1.0)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -142,18 +143,14 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
 )
+link_directories(${GAZEBO_LIBRARY_DIRS})
+
 
 if (GSTREAMER_FOUND)
   include_directories(
     ${GSTREAMER_INCLUDE_DIRS}
     ${GSTREAMER_APP_INCLUDE_DIRS}
   )
-endif()
-
-link_directories(${GAZEBO_LIBRARY_DIRS})
-
-
-if (GSTREAMER_FOUND)
   link_libraries(
     ${GSTREAMER_LIBRARIES}
     ${GSTREAMER_APP_LIBRARIES}
@@ -198,7 +195,9 @@ add_library(camera_video_feed
   SHARED 
   models/eo_daylight_cam/plugins/cam_video_feed.cc
 )
-target_link_libraries(camera_video_feed ${GAZEBO_LIBRARIES})
+target_link_libraries(camera_video_feed 
+  ${GAZEBO_LIBRARIES} 
+)
 
 
 ## Add cmake target dependencies of the library
