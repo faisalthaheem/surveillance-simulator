@@ -7,8 +7,6 @@
 
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/common/common.hh>
-#include <gazebo/transport/Node.hh>
-#include <gazebo/sensors/SensorManager.hh>
 #include <gazebo/sensors/CameraSensor.hh>
 #include <gazebo/rendering/Camera.hh>
 
