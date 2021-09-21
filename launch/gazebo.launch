@@ -70,6 +70,6 @@
         >
                 <env name="ROS_PYTHON_LOG_CONFIG_FILE" value="$(find surveillance_simulator)/config/python_logging.conf" />
                 <!--The public ip address where clients can view camera live stream-->
-                <env name="EXTERNAL_RTSP_IP_ADDRESS" value="192.168.229.11" />
+                <env name="EXTERNAL_RTSP_IP_ADDRESS" value="10.10.20.102" />
         </node>
 </launch>

@@ -5,17 +5,5 @@ This project aims to develop a fully functional mission module that can be mount
 - Electro Optic camera with RTSP feed of the simulated virtual environment
 - Laser Range Finder (LRF)
 
-![Gazebo model rev 5](docs/screenshots/gazebo-model-rev-5.png?raw=true "Gazebo model rev 5")
-
-Revision 5 illustrating new Mast, Pan Tilt mount, Daylight Camera and LRF module.
-
-
-![Gazebo model rev 4](docs/screenshots/gazebo-model-rev-4.gif?raw=true "Gazebo model rev 4")
-Revision 4 showing an animation of Pan, Tilt, Mast functions.
-
-
-![Gazebo model rev 3](docs/screenshots/gazebo-model-rev-3.png?raw=true "Gazebo model rev 3")
-High Fidelity (in works) Simulator model (revision 3) as seen in Gazebo Sim
-
-# Textures by
-(camo/jungle) Nouri Atchabao https://www.vecteezy.com/vector-art/106851-free-camouflage-seamless-vector
+Checkout the demo video at youtube by clicking on the following image
+[![Demo preview on Youtube](https://img.youtube.com/vi/U5bGR7-89vI/0.jpg)](https://www.youtube.com/watch?v=U5bGR7-89vI)
