@@ -46,3 +46,11 @@ popd
 ```
 
 On first run it will take some time for the models to be downloaded from internet, subsequent runs should be faster.
+
+## Configuring
+
+To configure the RTSP streaming, you must set the machine's reachable ip address in the file launch/gazebo.launch - look for the following code block and update
+
+```xml
+<env name="EXTERNAL_RTSP_IP_ADDRESS" value="10.10.20.102" />
+```
