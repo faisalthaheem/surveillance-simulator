@@ -1,3 +1,7 @@
+> **Archived (2026-11-07): development has moved to a private remote.**
+> This public GPL v3 snapshot is frozen. The GPL grant remains valid for copies
+> published here; active development continues closed-source.
+
 # STANAG 4586 compliant surveillance simulator
 
 This project aims to develop a fully functional mission module that can be mounted on a virtual unmanned ground vehicle for simulating ISR missions. The module mimicks functionalities of a real life mission module and supports a variety of sensors, actuators and features which can be remotely controlled by a command and control application. Sensors/actuators currently available include
